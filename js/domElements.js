@@ -35,7 +35,7 @@ export const manualForageButton = document.getElementById('manualForageButton');
 export const shelterLevelDisplay = document.getElementById('shelterLevelDisplay');
 export const shelterQualityDisplay = document.getElementById('shelterQualityDisplay');
 export const shelterMaintenanceDisplay = document.getElementById('shelterMaintenanceDisplay');
-export const shelterUpgradeCostDisplay = document.getElementById('shelterUpgradeCostDisplay');
+export const shelterUpgradeCostDisplay = document.getElementById('shelterUpgradeButton');
 export const upgradeShelterButton = document.getElementById('upgradeShelterButton');
 
 // Factories Section
@@ -51,3 +51,6 @@ export const gameOverScreen = document.getElementById('gameOverScreen');
 export const gameOverTitle = document.getElementById('gameOverTitle');
 export const gameOverMessage = document.getElementById('gameOverMessage');
 export const restartButton = document.getElementById('restartButton');
+
+// Event Timer Display
+export const eventCountdownDisplay = document.getElementById('eventCountdown');
