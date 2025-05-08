@@ -92,7 +92,26 @@ export function updateDisplay() {
             _DOM.upgradeFoodButton.disabled = true;
         }
     }
+    
+    // --- NEW: Manual Forage Button Logic ---
+    if (_DOM.manualForageButton) {
+        if (food.level <= FORAGE_MAX_FOOD_LEVEL) {
+            _DOM.manualForageButton.style.display = 'block'; // Show button
+            const now = gameSeconds;
+            const cooldownRemaining = food.forageCooldownEnd - now;
 
+            if (cooldownRemaining > 0) {
+                _DOM.manualForageButton.disabled = true;
+                _DOM.manualForageButton.textContent = `Forage (Wait ${cooldownRemaining}s)`;
+            } else {
+                _DOM.manualForageButton.disabled = false;
+                _DOM.manualForageButton.textContent = `Manual Forage (+${cfg.FORAGE_HUNGER_GAIN} Hunger)`;
+            }
+        } else {
+            _DOM.manualForageButton.style.display = 'none'; // Hide button
+        }
+    }
+    
     // Shelter Operations Display
     if (_DOM.shelterLevelDisplay) {
         _DOM.shelterLevelDisplay.textContent = shelter.level === 0 ? shelter.currentName : `${shelter.currentName} (Lvl ${shelter.level})`;
