@@ -68,39 +68,42 @@ export function calculateNeedStats(needType) {
 export function updateHealthAndHunger() {
     const { food, shelter, hunger: currentHunger, health: currentHealth } = gs.getGameState();
 
-    // --- Hunger Logic ---
+    // --- Hunger Logic (Rebalanced) ---
+    const foodBalance = food.currentProduction - cfg.BASE_FOOD_NEED; // Production vs Base Need
     let hungerChange = 0;
-    // Apply constant decay if food level is below requirement
-    if (food.level < 15) { // << CHANGED: Condition is level, not production balance
-        hungerChange -= cfg.BASE_HUNGER_DECAY;
+
+    if (foodBalance < 0) {
+        // Deficit: Hunger decreases by the deficit amount
+        hungerChange = foodBalance; // foodBalance is already negative
     } else {
-        // Optional: Regenerate slowly if above level 15 and not full
+        // Surplus or Balanced: Hunger might regenerate
         if (currentHunger < cfg.MAX_STAT) {
-            hungerChange += cfg.STAT_REGEN_RATE; // Simple regen when condition met
+            if (food.level >= cfg.HUNGER_STABILITY_LEVEL) {
+                // Sufficient food level: Allow regeneration up to standard rate
+                hungerChange = Math.min(cfg.STAT_REGEN_RATE, foodBalance * 0.2 + cfg.STAT_REGEN_RATE * 0.1); // Regenerate based on surplus, capped
+            } else {
+                // Low food level, but production meets base need: Stop decay, but no/minimal regeneration
+                hungerChange = 0; // Or a very small positive value like 0.05 if desired
+            }
         }
     }
-    let newHunger = currentHunger + hungerChange;
-    gs.setHunger(newHunger); // Use setter to clamp and update
+    gs.setHunger(currentHunger + hungerChange); // Use setter to clamp and update
 
     // --- Health Logic ---
     let healthChange = 0;
-    // Apply decay if shelter level is below requirement
-    if (shelter.level < cfg.SHELTER_HEALTH_MAINTENANCE_LEVEL) { // Uses new config value (15)
-        healthChange -= cfg.HEALTH_DECAY_NO_SHELTER; // Uses new config value (0.15)
+    if (shelter.level < cfg.SHELTER_HEALTH_MAINTENANCE_LEVEL) { // Uses config value (15)
+        healthChange -= cfg.HEALTH_DECAY_NO_SHELTER; // Uses config value (0.15)
     }
-    // Apply decay if hunger is low (use the newly calculated hunger state)
+    // Use gs.hunger here because it has been updated by the setter already
     if (gs.hunger < 25) {
         healthChange -= cfg.HEALTH_DECAY_LOW_HUNGER;
     }
-
-    // Regenerate if conditions met (no decay factors active)
     if (healthChange === 0 && gs.hunger >= 50 && currentHealth < cfg.MAX_STAT) {
          healthChange = cfg.STAT_REGEN_RATE;
     }
-    let newHealth = currentHealth + healthChange;
-    gs.setHealth(newHealth); // Use setter to clamp and update
+    gs.setHealth(currentHealth + healthChange); // Use setter to clamp and update
 
-    // Check Game Over (reads the potentially updated values)
+    // Check Game Over
     if (gs.hunger <= 0) triggerGameOver("hunger");
     else if (gs.health <= 0) triggerGameOver("health");
 }
