@@ -1,3 +1,5 @@
+// js/domElements.js
+
 export const capitalDisplay = document.getElementById('capitalDisplay');
 export const earnButton = document.getElementById('earnButton');
 export const wageValueDisplay = document.getElementById('wageValueDisplay');
