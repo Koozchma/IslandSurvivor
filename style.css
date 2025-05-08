@@ -7,17 +7,16 @@
     --section-bg: rgba(0,0,0, 0.15);
     --text-color: #e0e0e0;
     --primary-accent: #274c79;
-    --secondary-accent: #e43f5a;
+    --secondary-accent: #1abc9c; /* Changed accent */
     --positive-feedback: #2ecc71;
     --negative-feedback: #e74c3c;
-    --warning-feedback: #f39c12;
     --neutral-feedback: #f0f0f0;
     --border-color: #394867;
     --shadow-color: rgba(0, 0, 0, 0.3);
-    --button-bg: #e43f5a;
+    --button-bg: #e43f5a; /* Kept for manual labor button */
     --button-hover-bg: #c0392b;
-    --upgrade-button-bg: #3498db;
-    --upgrade-button-hover-bg: #2980b9;
+    --factory-button-bg: var(--secondary-accent); /* Use new accent */
+    --factory-button-hover-bg: #16a085; /* Darker accent */
     --disabled-bg: #555;
 }
 
@@ -51,56 +50,6 @@ header { margin-bottom: 20px; }
 h1 { font-size: 2.5em; font-weight: 700; color: var(--secondary-accent); margin: 0 0 5px 0; letter-spacing: 1px; }
 .subtitle { font-size: 1em; font-weight: 300; color: var(--text-color); opacity: 0.8; margin: 0; }
 
-/* Status Bars Section */
-.status-bars-section {
-    display: flex;
-    justify-content: space-around;
-    gap: 20px;
-    margin-bottom: 20px;
-    padding: 15px;
-    background-color: var(--section-bg);
-    border-radius: 10px;
-}
-.status-bar-container {
-    flex: 1;
-    min-width: 150px;
-}
-.status-bar-container label {
-    display: block;
-    font-size: 0.9em;
-    margin-bottom: 5px;
-    color: var(--neutral-feedback);
-}
-.progress-bar-outer {
-    background-color: var(--primary-accent);
-    border-radius: 8px;
-    height: 25px;
-    padding: 3px;
-    position: relative;
-    box-shadow: inset 0 1px 3px rgba(0,0,0,0.3);
-    overflow: hidden;
-}
-.progress-bar-inner {
-    height: 100%;
-    border-radius: 5px;
-    transition: width 0.3s ease-in-out, background-color 0.3s ease;
-    width: 100%;
-}
-#healthBar { background-color: var(--positive-feedback); }
-#hungerBar { background-color: var(--positive-feedback); }
-
-.progress-bar-text {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 0.8em;
-    font-weight: bold;
-    color: #fff;
-    text-shadow: 1px 1px 1px rgba(0,0,0,0.5);
-    white-space: nowrap;
-}
-
 .game-area { margin-bottom: 20px; padding: 15px; background-color: var(--section-bg); border-radius: 10px; }
 .capital-wrapper { position: relative; margin-bottom: 10px; }
 .capital-label { font-size: 1.1em; margin: 0 0 3px 0; }
@@ -115,129 +64,31 @@ h1 { font-size: 2.5em; font-weight: 700; color: var(--secondary-accent); margin:
 .button-icon { font-size: 1.1em; }
 .button-value { font-size: 0.8em; opacity: 0.8; font-family: var(--monospace-font); }
 
-.interest-info, .maintenance-info, .net-gain-info { font-size: 0.9em; margin: 4px 0; }
-.maintenance-info span { color: var(--negative-feedback); font-family: var(--monospace-font); }
+.interest-info, .cps-info, .net-gain-info { font-size: 0.9em; margin: 4px 0; }
+.cps-info span { color: var(--positive-feedback); font-family: var(--monospace-font); }
 #netGainDisplay.positive { color: var(--positive-feedback); font-family: var(--monospace-font); }
-#netGainDisplay.negative { color: var(--negative-feedback); font-family: var(--monospace-font); }
+#netGainDisplay.negative { color: var(--negative-feedback); font-family: var(--monospace-font); } /* Should always be positive now */
 
-
-/* Career Section */
-.career-section { margin-bottom: 20px; padding: 15px; background-color: var(--section-bg); border-radius: 10px;}
-.career-section h2 { font-size: 1.4em; color: var(--secondary-accent); margin-bottom: 10px; }
-.career-card { background-color: var(--card-bg); padding: 15px; border-radius: 10px; border: 1px solid var(--border-color); box-shadow: 0 5px 15px rgba(0,0,0,0.15); }
-.career-card p { font-size: 0.9em; margin: 6px 0; }
-.career-card p span { font-family: var(--monospace-font); font-weight: bold; color: var(--neutral-feedback); }
-
-.promotion-progress-container {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-    margin-top: 10px;
-}
-.promotion-progress-container button {
-    flex-grow: 1;
-    background-color: var(--upgrade-button-bg); color: white; border: none; padding: 10px 15px; font-size: 0.9em; font-weight: 600; border-radius: 5px; cursor: pointer; transition: background-color 0.2s ease;
-}
-.promotion-progress-container button:disabled { background-color: var(--disabled-bg); cursor: not-allowed; }
-.promotion-progress-container button:hover:not(:disabled) { background-color: var(--upgrade-button-hover-bg); }
-
-.click-progress-visual-container {
-    width: 20px;
-    height: 50px;
-    background-color: var(--primary-accent);
-    border-radius: 5px;
-    position: relative;
-    overflow: hidden;
-    margin: 0 5px;
-}
-.click-progress-bar-vertical {
-    width: 100%;
-    height: 0%;
-    background-color: var(--positive-feedback);
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    transition: height 0.2s ease-out;
-}
-#promotionClicksDisplay {
-    font-size: 0.85em;
-    font-family: var(--monospace-font);
-    min-width: 70px;
-    text-align: right;
-}
-
-
-/* Needs Section */
-.needs-section { margin-bottom: 20px; padding: 15px; background-color: var(--section-bg); border-radius: 10px; }
-.needs-section h2 { font-size: 1.4em; color: var(--secondary-accent); margin-bottom: 15px; }
-.needs-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 15px; }
-.need-card { background-color: var(--card-bg); padding: 15px; border-radius: 10px; border: 1px solid var(--border-color); box-shadow: 0 5px 15px rgba(0,0,0,0.15); }
-.need-card h3 { font-size: 1.2em; margin: 0 0 10px 0; }
-.need-card p { font-size: 0.9em; margin: 6px 0; }
-.need-card p span { font-family: var(--monospace-font); font-weight: bold; }
-.need-card button { background-color: var(--upgrade-button-bg); color: white; border: none; padding: 10px 15px; font-size: 0.9em; font-weight: 600; border-radius: 5px; cursor: pointer; transition: background-color 0.2s ease; margin-top: 10px; width: 100%; }
-.need-card button:hover:not(:disabled) { background-color: var(--upgrade-button-hover-bg); }
-.need-card button:disabled { background-color: var(--disabled-bg); cursor: not-allowed; }
-/* Style specifically for forage button if needed */
-#manualForageButton { background-color: var(--positive-feedback); /* Green */ }
-#manualForageButton:hover:not(:disabled) { background-color: #27ae60; /* Darker Green */ }
+/* Factories Section */
+.factories-section { margin-bottom: 20px; padding: 15px; background-color: var(--section-bg); border-radius: 10px; }
+.factories-section h2 { font-size: 1.4em; color: var(--secondary-accent); margin-bottom: 15px; }
+.factories-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
+.factory-card { background-color: var(--card-bg); padding: 15px; border-radius: 10px; border: 1px solid var(--border-color); box-shadow: 0 5px 15px rgba(0,0,0,0.1); display: flex; flex-direction: column; justify-content: space-between; }
+.factory-card h3 { font-size: 1.1em; margin: 0 0 10px 0; color: var(--neutral-feedback); }
+.factory-card p { font-size: 0.85em; margin: 4px 0; opacity: 0.9; }
+.factory-card p span { font-family: var(--monospace-font); font-weight: bold; }
+.factory-card button { background-color: var(--factory-button-bg); color: #111; /* Dark text on light accent */ border: none; padding: 8px 12px; font-size: 0.85em; font-weight: 600; border-radius: 5px; cursor: pointer; transition: background-color 0.2s ease; margin-top: 10px; width: 100%; }
+.factory-card button:hover:not(:disabled) { background-color: var(--factory-button-hover-bg); }
+.factory-card button:disabled { background-color: var(--disabled-bg); cursor: not-allowed; color: #aaa; }
 
 
 .storyline { margin-top: 20px; padding: 15px; border-top: 1px solid var(--border-color); background-color: rgba(255, 255, 255, 0.03); border-radius: 10px; }
 .storyline h2 { font-size: 1.3em; margin-bottom: 8px; }
 .storyline p { font-size: 0.95em; line-height: 1.5; margin-bottom: 10px; }
 
-.progress-bar-container { width: 100%; background-color: var(--primary-accent); border-radius: 5px; height: 12px; margin-top: 8px; overflow: hidden; }
-.progress-bar { width: 0%; height: 100%; background-color: var(--positive-feedback); border-radius: 5px; transition: width 0.5s ease-in-out; }
-
 footer { margin-top: 20px; font-size: 0.85em; color: var(--text-color); opacity: 0.7; }
 
 @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); color: #aaffaa; } 100% { transform: scale(1); } }
 .capital-amount.pulsing { animation: pulse 0.3s ease-out; }
 
-/* Game Over Modal */
-.modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.7);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-}
-.modal-content {
-    background-color: var(--container-bg);
-    padding: 30px;
-    border-radius: 10px;
-    border: 1px solid var(--border-color);
-    box-shadow: 0 10px 30px var(--shadow-color);
-    text-align: center;
-    max-width: 400px;
-}
-.modal-content h2 {
-    color: var(--secondary-accent);
-    font-size: 2em;
-    margin-bottom: 15px;
-}
-.modal-content p {
-    font-size: 1.1em;
-    margin-bottom: 25px;
-    color: var(--text-color);
-}
-.modal-content button {
-    background-color: var(--positive-feedback);
-    color: white;
-    border: none;
-    padding: 12px 25px;
-    font-size: 1.1em;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-}
-.modal-content button:hover {
-    background-color: #27ae60; /* Darker green */
-}
+/* Removed Game Over Modal Styles */
