@@ -24,8 +24,7 @@ export function formatNumber(num, decimals = 2) {
 export function showFeedbackText(text, color, element = DOM.capitalFeedback, duration = 1000) {
     try {
         const safeGameState = getGameState();
-        // Check if DOM element exists before proceeding
-        const targetElement = element || DOM.capitalFeedback; // Fallback just in case
+        const targetElement = element || DOM.capitalFeedback;
         if (!targetElement || safeGameState.isGameOver) return;
 
         targetElement.textContent = text;
@@ -56,6 +55,7 @@ export function pulseCapitalDisplay() {
     }
 }
 
+// Restored setBarColor for Health/Hunger
 export function setBarColor(barElement, value) {
     if (!barElement) return;
     try {
