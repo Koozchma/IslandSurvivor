@@ -91,5 +91,4 @@ export function getGameState() {
     };
 }
 
-// Re-export initializeFactoryState for main.js
-export { initializeFactoryState };
+// The duplicate export `export { initializeFactoryState };` has been removed from here.
