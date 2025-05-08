@@ -1,5 +1,7 @@
 // js/main.js
 
+console.log("main.js: Script start"); // <--- ADD THIS
+
 import * as DOM from './domElements.js';
 import * as GameState from './gameState.js';
 import { updateDisplay, hideGameOverUI } from './uiController.js';
