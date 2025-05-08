@@ -65,29 +65,62 @@ export function calculateNeedStats(needType) {
 
 
 // --- GAME LOOP LOGIC ---
+
+// NEW function to handle timed events
+export function handleTimedEvents() {
+    if (gs.nextEventIndex >= cfg.TIMED_EVENTS.length) {
+        // No more events
+        if (gs.timeUntilNextEvent !== Infinity) gs.setTimeUntilNextEvent(Infinity); // Prevent further countdown display
+        return;
+    }
+
+    let timeRemaining = gs.timeUntilNextEvent - 1;
+    gs.setTimeUntilNextEvent(timeRemaining);
+
+    if (timeRemaining <= 0) {
+        // Trigger the event
+        const event = cfg.TIMED_EVENTS[gs.nextEventIndex];
+        console.log(`Triggering Event: ${event.name}`); // Debug log
+
+        // Apply effects
+        gs.setCurrentFoodNeed(gs.currentFoodNeed + event.foodNeedIncr);
+        gs.addShelterEventMaintenance(event.shelterMaintIncr);
+
+        // Recalculate shelter stats immediately as maintenance changed
+        calculateNeedStats('shelter');
+
+        // Show feedback
+        showFeedbackText(`Event: ${event.name}! Needs Increased!`, 'var(--warning-feedback)', undefined, 2500);
+
+        // Move to next event
+        gs.setNextEventIndex(gs.nextEventIndex + 1);
+        // Reset timer (or set to Infinity if it was the last one)
+        if (gs.nextEventIndex < cfg.TIMED_EVENTS.length) {
+            gs.setTimeUntilNextEvent(cfg.EVENT_INTERVAL_SECONDS);
+        } else {
+            gs.setTimeUntilNextEvent(Infinity); // Indicate no more events
+        }
+    }
+}
+
 export function updateHealthAndHunger() {
     const { food, shelter, hunger: currentHunger, health: currentHealth } = gs.getGameState();
 
-    // --- Hunger Logic (Rebalanced) ---
-    const foodBalance = food.currentProduction - cfg.BASE_FOOD_NEED; // Production vs Base Need
+    // --- Hunger Logic ---
+    const foodBalance = food.currentProduction - currentFoodNeed; // Use dynamic need
     let hungerChange = 0;
-
     if (foodBalance < 0) {
-        // Deficit: Hunger decreases by the deficit amount
-        hungerChange = foodBalance; // foodBalance is already negative
+        hungerChange = foodBalance; // Still decay by deficit
     } else {
-        // Surplus or Balanced: Hunger might regenerate
         if (currentHunger < cfg.MAX_STAT) {
-            if (food.level >= cfg.HUNGER_STABILITY_LEVEL) {
-                // Sufficient food level: Allow regeneration up to standard rate
-                hungerChange = Math.min(cfg.STAT_REGEN_RATE, foodBalance * 0.2 + cfg.STAT_REGEN_RATE * 0.1); // Regenerate based on surplus, capped
+            if (food.level >= cfg.HUNGER_STABILITY_LEVEL) { // Level 15 check still relevant for stability/regen
+                hungerChange = Math.min(cfg.STAT_REGEN_RATE, foodBalance * 0.2 + cfg.STAT_REGEN_RATE * 0.1);
             } else {
-                // Low food level, but production meets base need: Stop decay, but no/minimal regeneration
-                hungerChange = 0; // Or a very small positive value like 0.05 if desired
+                hungerChange = 0; // Stop decay if balance is non-negative, but no regen < Lvl 15
             }
         }
     }
-    gs.setHunger(currentHunger + hungerChange); // Use setter to clamp and update
+    gs.setHunger(currentHunger + hungerChange);
 
     // --- Health Logic ---
     let healthChange = 0;
