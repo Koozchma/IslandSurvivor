@@ -8,6 +8,12 @@ export let health = 100;
 export let hunger = 100;
 export let currentStageIndex = 0;
 
+// --- NEW: Event State ---
+export let currentFoodNeed = INITIAL_FOOD_NEED; // Start with initial base need
+export let shelterEventMaintenanceBonus = 0.00; // Extra maintenance from events
+export let nextEventIndex = 0; // Index of the upcoming event in TIMED_EVENTS array
+export let timeUntilNextEvent = EVENT_INTERVAL_SECONDS; // Countdown timer
+
 // --- State Objects ---
 export let promotion = {
     level: 0,
