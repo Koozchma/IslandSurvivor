@@ -69,3 +69,26 @@ export function upgradeNeedAction(needType) {
         showFeedbackText("Not enough capital!", 'var(--negative-feedback)');
     }
 }
+
+export function manualForageAction() {
+    if (gs.isGameOver) return;
+
+    const now = gs.gameSeconds; // Use game seconds as timer base
+    if (now < gs.food.forageCooldownEnd) {
+        // Optional: show feedback that it's on cooldown
+        // showFeedbackText("Forage resting...", "var(--neutral-feedback)");
+        return; // Exit if on cooldown
+    }
+
+    // Apply hunger gain
+    gs.setHunger(gs.hunger + FORAGE_HUNGER_GAIN);
+
+    // Set cooldown end time
+    gs.updateFoodState({ forageCooldownEnd: now + FORAGE_COOLDOWN_SECONDS });
+
+    // Give feedback
+    showFeedbackText(`Foraged! +${FORAGE_HUNGER_GAIN} Hunger`, 'var(--positive-feedback)');
+
+    // Update the display immediately to show hunger change and cooldown state
+    updateDisplay();
+}
