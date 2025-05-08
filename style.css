@@ -78,13 +78,13 @@ h1 { font-size: 2.5em; font-weight: 700; color: var(--secondary-accent); margin:
     padding: 3px;
     position: relative;
     box-shadow: inset 0 1px 3px rgba(0,0,0,0.3);
-    overflow: hidden; /* Ensure inner bar is clipped */
+    overflow: hidden;
 }
 .progress-bar-inner {
     height: 100%;
     border-radius: 5px;
     transition: width 0.3s ease-in-out, background-color 0.3s ease;
-    width: 100%; /* Default full */
+    width: 100%;
 }
 #healthBar { background-color: var(--positive-feedback); }
 #hungerBar { background-color: var(--positive-feedback); }
@@ -98,7 +98,7 @@ h1 { font-size: 2.5em; font-weight: 700; color: var(--secondary-accent); margin:
     font-weight: bold;
     color: #fff;
     text-shadow: 1px 1px 1px rgba(0,0,0,0.5);
-    white-space: nowrap; /* Prevent text wrapping */
+    white-space: nowrap;
 }
 
 .game-area { margin-bottom: 20px; padding: 15px; background-color: var(--section-bg); border-radius: 10px; }
@@ -179,6 +179,10 @@ h1 { font-size: 2.5em; font-weight: 700; color: var(--secondary-accent); margin:
 .need-card button { background-color: var(--upgrade-button-bg); color: white; border: none; padding: 10px 15px; font-size: 0.9em; font-weight: 600; border-radius: 5px; cursor: pointer; transition: background-color 0.2s ease; margin-top: 10px; width: 100%; }
 .need-card button:hover:not(:disabled) { background-color: var(--upgrade-button-hover-bg); }
 .need-card button:disabled { background-color: var(--disabled-bg); cursor: not-allowed; }
+/* Style specifically for forage button if needed */
+#manualForageButton { background-color: var(--positive-feedback); /* Green */ }
+#manualForageButton:hover:not(:disabled) { background-color: #27ae60; /* Darker Green */ }
+
 
 .storyline { margin-top: 20px; padding: 15px; border-top: 1px solid var(--border-color); background-color: rgba(255, 255, 255, 0.03); border-radius: 10px; }
 .storyline h2 { font-size: 1.3em; margin-bottom: 8px; }
@@ -200,7 +204,7 @@ footer { margin-top: 20px; font-size: 0.85em; color: var(--text-color); opacity:
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.7);
-    display: flex; /* Changed from none to flex by default, controlled by display:none initially */
+    display: flex;
     justify-content: center;
     align-items: center;
     z-index: 1000;

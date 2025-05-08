@@ -28,6 +28,7 @@ export const foodProductionDisplay = document.getElementById('foodProductionDisp
 export const foodMaintenanceDisplay = document.getElementById('foodMaintenanceDisplay');
 export const foodUpgradeCostDisplay = document.getElementById('foodUpgradeCostDisplay');
 export const upgradeFoodButton = document.getElementById('upgradeFoodButton');
+export const manualForageButton = document.getElementById('manualForageButton');
 
 export const shelterLevelDisplay = document.getElementById('shelterLevelDisplay');
 export const shelterQualityDisplay = document.getElementById('shelterQualityDisplay');
