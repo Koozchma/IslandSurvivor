@@ -141,6 +141,12 @@ document.addEventListener('DOMContentLoaded', () => {
         console.error("Restart button not found during listener setup");
     }
 
+    if (DOM.manualForageButton) {
+        DOM.manualForageButton.addEventListener('click', manualForageAction);
+    } else {
+        console.error("Manual Forage button not found during listener setup");
+    }
+
     // Initialize the game state and start the loop
     initializeGame();
 });
