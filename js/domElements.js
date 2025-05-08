@@ -35,6 +35,8 @@ export const shelterMaintenanceDisplay = document.getElementById('shelterMainten
 export const shelterUpgradeCostDisplay = document.getElementById('shelterUpgradeCostDisplay');
 export const upgradeShelterButton = document.getElementById('upgradeShelterButton');
 
+export const manualForageButton = document.getElementById('manualForageButton');
+
 export const gameOverScreen = document.getElementById('gameOverScreen');
 export const gameOverTitle = document.getElementById('gameOverTitle');
 export const gameOverMessage = document.getElementById('gameOverMessage');
