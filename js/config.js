@@ -1,16 +1,23 @@
 // js/config.js
 
 export const MAX_STAT = 100;
-export const POPULATION_FOOD_CONSUMPTION_RATE = 4; // Keep this for potential future use or complexity, but hunger decay is now primary
 export const SHELTER_HEALTH_MAINTENANCE_LEVEL = 15; // << CHANGED from 3
 export const HEALTH_DECAY_NO_SHELTER = 0.15;       // << CHANGED from 0.35 (Slower decay over more levels)
 export const HEALTH_DECAY_LOW_HUNGER = 0.6;
-export const BASE_HUNGER_DECAY = 1.5;              // << NEW: Hunger decays by this amount per second if food level < 15
+export const BASE_FOOD_NEED = 4.0;                 // << NEW: Base food units needed per second regardless of level
+export const HUNGER_STABILITY_LEVEL = 15;          // << NEW: Food level required to allow hunger regeneration above baseline
+export const SHELTER_HEALTH_MAINTENANCE_LEVEL = 15; // Keep this high as requested previously
+export const HEALTH_DECAY_NO_SHELTER = 0.15;
+
 // export const HUNGER_DECAY_NO_FOOD_BALANCE = 1; // This is no longer the primary mechanism
 export const STAT_REGEN_RATE = 0.35;
 export const BASE_INTEREST_RATE = 0.01;
 export const PROMOTION_BONUS_LEVEL_INTERVAL = 5;   // << NEW: Every 5 levels...
 export const PROMOTION_BONUS_WAGE_INCREASE = 10;  // << NEW: ...get +10 bonus wage
+
+export const FORAGE_HUNGER_GAIN = 2;                // << NEW: Hunger points gained per forage click
+export const FORAGE_COOLDOWN_SECONDS = 3;           // << NEW: Cooldown for manual forage
+export const FORAGE_MAX_FOOD_LEVEL = 1;             // << NEW: Food Ops level at which Forage button disappears
 
 export const NUM_ABBREVIATIONS = [
     { value: 1e18, symbol: "E" },{ value: 1e15, symbol: "P" },{ value: 1e12, symbol: "T" },
