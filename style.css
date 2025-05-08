@@ -3,14 +3,14 @@
     --monospace-font: 'Roboto Mono', monospace;
     --bg-color: #1a1a2e;
     --container-bg: #162447;
-    --card-bg: #1f4068; /* Slightly lighter for cards within sections */
-    --section-bg: rgba(0,0,0, 0.15); /* Background for main sections */
+    --card-bg: #1f4068;
+    --section-bg: rgba(0,0,0, 0.15);
     --text-color: #e0e0e0;
     --primary-accent: #274c79;
-    --secondary-accent: #e43f5a; /* Main action buttons, alerts */
-    --positive-feedback: #2ecc71; /* Green for gains, good status */
-    --negative-feedback: #e74c3c; /* Red for costs, bad status */
-    --warning-feedback: #f39c12; /* Orange for warnings */
+    --secondary-accent: #e43f5a;
+    --positive-feedback: #2ecc71;
+    --negative-feedback: #e74c3c;
+    --warning-feedback: #f39c12;
     --neutral-feedback: #f0f0f0;
     --border-color: #394867;
     --shadow-color: rgba(0, 0, 0, 0.3);
@@ -38,10 +38,10 @@ body {
 
 .container {
     background-color: var(--container-bg);
-    padding: 25px 35px; /* Slightly reduced padding */
+    padding: 25px 35px;
     border-radius: 15px;
     box-shadow: 0 10px 30px var(--shadow-color);
-    max-width: 800px; /* Increased width */
+    max-width: 800px;
     width: 100%;
     border: 1px solid var(--border-color);
     margin-bottom: 30px;
@@ -78,6 +78,7 @@ h1 { font-size: 2.5em; font-weight: 700; color: var(--secondary-accent); margin:
     padding: 3px;
     position: relative;
     box-shadow: inset 0 1px 3px rgba(0,0,0,0.3);
+    overflow: hidden; /* Ensure inner bar is clipped */
 }
 .progress-bar-inner {
     height: 100%;
@@ -86,7 +87,7 @@ h1 { font-size: 2.5em; font-weight: 700; color: var(--secondary-accent); margin:
     width: 100%; /* Default full */
 }
 #healthBar { background-color: var(--positive-feedback); }
-#hungerBar { background-color: var(--positive-feedback); } /* Will change with JS */
+#hungerBar { background-color: var(--positive-feedback); }
 
 .progress-bar-text {
     position: absolute;
@@ -95,10 +96,10 @@ h1 { font-size: 2.5em; font-weight: 700; color: var(--secondary-accent); margin:
     transform: translate(-50%, -50%);
     font-size: 0.8em;
     font-weight: bold;
-    color: #fff; /* White for contrast on colored bars */
+    color: #fff;
     text-shadow: 1px 1px 1px rgba(0,0,0,0.5);
+    white-space: nowrap; /* Prevent text wrapping */
 }
-
 
 .game-area { margin-bottom: 20px; padding: 15px; background-color: var(--section-bg); border-radius: 10px; }
 .capital-wrapper { position: relative; margin-bottom: 10px; }
@@ -130,39 +131,39 @@ h1 { font-size: 2.5em; font-weight: 700; color: var(--secondary-accent); margin:
 .promotion-progress-container {
     display: flex;
     align-items: center;
-    justify-content: space-between; /* Pushes elements apart */
-    gap: 10px; /* Adds space between elements if they are close */
+    justify-content: space-between;
+    gap: 10px;
     margin-top: 10px;
 }
 .promotion-progress-container button {
-    flex-grow: 1; /* Allows button to take available space */
+    flex-grow: 1;
     background-color: var(--upgrade-button-bg); color: white; border: none; padding: 10px 15px; font-size: 0.9em; font-weight: 600; border-radius: 5px; cursor: pointer; transition: background-color 0.2s ease;
 }
 .promotion-progress-container button:disabled { background-color: var(--disabled-bg); cursor: not-allowed; }
 .promotion-progress-container button:hover:not(:disabled) { background-color: var(--upgrade-button-hover-bg); }
 
 .click-progress-visual-container {
-    width: 20px; /* Width of the vertical bar's track */
-    height: 50px; /* Height of the vertical bar's track */
+    width: 20px;
+    height: 50px;
     background-color: var(--primary-accent);
     border-radius: 5px;
     position: relative;
-    overflow: hidden; /* Important for the inner bar */
-    margin: 0 5px; /* Some spacing */
+    overflow: hidden;
+    margin: 0 5px;
 }
 .click-progress-bar-vertical {
     width: 100%;
-    height: 0%; /* Starts empty */
+    height: 0%;
     background-color: var(--positive-feedback);
     position: absolute;
-    bottom: 0; /* Fills from the bottom up */
+    bottom: 0;
     left: 0;
     transition: height 0.2s ease-out;
 }
 #promotionClicksDisplay {
     font-size: 0.85em;
     font-family: var(--monospace-font);
-    min-width: 70px; /* Ensure it doesn't jump around too much */
+    min-width: 70px;
     text-align: right;
 }
 
@@ -199,7 +200,7 @@ footer { margin-top: 20px; font-size: 0.85em; color: var(--text-color); opacity:
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.7);
-    display: flex;
+    display: flex; /* Changed from none to flex by default, controlled by display:none initially */
     justify-content: center;
     align-items: center;
     z-index: 1000;
