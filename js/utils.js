@@ -1,3 +1,5 @@
+// js/utils.js
+
 import * as DOM from './domElements.js';
 import { NUM_ABBREVIATIONS } from './config.js';
 import { getGameState } from './gameState.js';
@@ -9,7 +11,8 @@ export function formatNumber(num, decimals = 2) {
     if (num === 0) return '0.00';
     const item = NUM_ABBREVIATIONS.find(item => Math.abs(num) >= item.value);
     if (item) {
-        return (num / item.value).toFixed(decimals).replace(/\.0+$|(\.[0-9]*[1-9])0+$/, "$1") + item.symbol;
+        // Ensure trailing zeros are removed correctly after toFixed
+        return (num / item.value).toFixed(decimals).replace(/\.?0+$/, "") + item.symbol;
     }
     return num.toFixed(decimals);
 }
@@ -20,17 +23,27 @@ export function showFeedbackText(text, color, element = DOM.capitalFeedback, dur
     element.textContent = text;
     element.style.color = color;
     element.classList.add('show');
-    setTimeout(() => { element.classList.remove('show'); }, duration);
+    setTimeout(() => {
+        // Check if element still exists before removing class
+        if (element) {
+            element.classList.remove('show');
+        }
+    }, duration);
 }
 
 export function pulseCapitalDisplay() {
     const { isGameOver } = getGameState();
-    if (isGameOver) return;
+    if (isGameOver || !DOM.capitalDisplay) return;
     DOM.capitalDisplay.classList.add('pulsing');
-    setTimeout(() => { DOM.capitalDisplay.classList.remove('pulsing'); }, 300);
+    setTimeout(() => {
+        if (DOM.capitalDisplay) {
+            DOM.capitalDisplay.classList.remove('pulsing');
+        }
+     }, 300);
 }
 
 export function setBarColor(barElement, value) {
+    if (!barElement) return;
     if (value < 25) barElement.style.backgroundColor = 'var(--negative-feedback)';
     else if (value < 50) barElement.style.backgroundColor = 'var(--warning-feedback)';
     else barElement.style.backgroundColor = 'var(--positive-feedback)';
