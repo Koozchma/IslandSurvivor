@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Capital - Survival Idle</title>
+    <title>Capital - Factory Phase</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -12,26 +12,9 @@
 <body>
     <div class="container">
         <header>
-            <h1>Capital 💰</h1>
-            <p class="subtitle">From Pennies to Power... If You Survive</p>
+            <h1>Capital 🏭</h1>
+            <p class="subtitle">Build Your Industrial Empire</p>
         </header>
-
-        <div class="status-bars-section">
-            <div class="status-bar-container">
-                <label for="healthBar">❤️ Health:</label>
-                <div class="progress-bar-outer">
-                    <div class="progress-bar-inner" id="healthBar"></div>
-                    <span class="progress-bar-text" id="healthText">100/100</span>
-                </div>
-            </div>
-            <div class="status-bar-container">
-                <label for="hungerBar">😋 Hunger:</label>
-                <div class="progress-bar-outer">
-                    <div class="progress-bar-inner" id="hungerBar"></div>
-                    <span class="progress-bar-text" id="hungerText">100/100</span>
-                </div>
-            </div>
-        </div>
 
         <div class="game-area">
             <div class="capital-wrapper">
@@ -40,66 +23,24 @@
                 <span class="feedback-text" id="capitalFeedback"></span>
             </div>
             <button id="earnButton">
-                <span class="button-icon">🔨</span> Earn Wage
+                <span class="button-icon">🔨</span> Manual Labor
                 (<span class="button-value" id="wageValueDisplay">+$1.00</span>)
             </button>
             <p class="interest-info">Base Interest: <span id="interestRateDisplay">1.00</span>% / sec</p>
-            <p class="maintenance-info">Maintenance Costs: $<span id="totalMaintenanceDisplay">0.00</span> / sec</p>
+            <p class="cps-info">Factory Production: $<span id="totalCpsDisplay">0.00</span> / sec</p>
             <p class="net-gain-info">Net Gain (Est.): $<span id="netGainDisplay">0.00</span> / sec</p>
         </div>
 
-        <div class="career-section">
-            <h2>Career Path</h2>
-            <div class="career-card">
-                <p>Current Wage: $<span id="currentWageDisplay">1.00</span> / click</p>
-                <p>Promotion Level: <span id="promotionLevelDisplay">0</span></p>
-                <div class="promotion-progress-container">
-                    <button id="promoteButton" disabled>Get Promotion</button>
-                    <div class="click-progress-visual-container">
-                        <div class="click-progress-bar-vertical" id="promotionClickProgress"></div>
-                    </div>
-                    <span id="promotionClicksDisplay">Clicks: 0/10</span>
+        <div class="factories-section">
+            <h2>Factories</h2>
+            <div class="factories-grid">
                 </div>
-            </div>
-        </div>
-
-        <div class="needs-section">
-            <h2>Operations</h2>
-            <div class="needs-grid">
-                <div class="need-card" id="foodCard">
-                    <h3>🍎 Food Operations</h3>
-                    <p>Type: <span id="foodLevelDisplay">None</span></p>
-                    <p>Production: <span id="foodProductionDisplay">0 units/sec</span></p>
-                    <p>Maintenance: <span id="foodMaintenanceDisplay">$0.00/sec</span></p>
-                    <button id="manualForageButton" style="display: none; margin-bottom: 8px; background-color: var(--positive-feedback);">Manual Forage</button>
-                    <button id="upgradeFoodButton">Upgrade (Cost: $<span id="foodUpgradeCostDisplay">10</span>)</button>
-                </div>
-
-                <div class="need-card" id="shelterCard">
-                    <h3>🏠 Shelter</h3>
-                    <p>Type: <span id="shelterLevelDisplay">None</span></p>
-                    <p>Est. Quality Lvl: <span id="shelterQualityDisplay">0</span></p>
-                    <p>Maintenance: <span id="shelterMaintenanceDisplay">$0.00/sec</span></p>
-                    <button id="upgradeShelterButton">Upgrade (Cost: $<span id="shelterUpgradeCostDisplay">15</span>)</button>
-                </div>
-            </div>
         </div>
 
         <div class="storyline">
-            <h2>Your Journey: <span id="currentStage">The Shore</span></h2>
-            <p id="storyText">You've landed on an island. Survival is paramount. Manage your Health and Hunger. Work hard for promotions and upgrade your means of survival!</p>
-            <div class="progress-bar-container">
-                <div class="progress-bar" id="storyProgress"></div>
+            <h2>Your Journey: <span id="currentStage">Foundation</span></h2>
+            <p id="storyText">From manual labor, build factories to generate passive capital. Expand your empire!</p>
             </div>
-        </div>
-
-        <div id="gameOverScreen" class="modal-overlay" style="display: none;">
-            <div class="modal-content">
-                <h2 id="gameOverTitle">Game Over</h2>
-                <p id="gameOverMessage">You didn't make it.</p>
-                <button id="restartButton">Restart Journey</button>
-            </div>
-        </div>
 
         <footer>
             <p>Game Time: <span id="gameTime">0s</span></p>
