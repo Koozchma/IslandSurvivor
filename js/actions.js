@@ -4,19 +4,24 @@ import * as gs from './gameState.js';
 import { showFeedbackText, pulseCapitalDisplay, formatNumber } from './utils.js';
 import { updateDisplay } from './uiController.js';
 import { calculatePromotionStats, calculateNeedStats } from './coreLogic.js';
-import { PROMOTION_BONUS_LEVEL_INTERVAL, PROMOTION_BONUS_WAGE_INCREASE } from './config.js'; // Import prize constants
+import { PROMOTION_BONUS_LEVEL_INTERVAL, PROMOTION_BONUS_WAGE_INCREASE, FORAGE_HUNGER_GAIN, FORAGE_COOLDOWN_SECONDS } from './config.js';
 
 
 export function earnMinimumWage() {
-    // ... (same as before) ...
-    if (gs.isGameOver) return;
-    gs.addCapital(gs.promotion.currentWage);
-    showFeedbackText(`+$${formatNumber(gs.promotion.currentWage, 2)}`, 'var(--positive-feedback)');
-    pulseCapitalDisplay();
-    if (gs.promotion.currentClicks < gs.promotion.clicksNeeded) {
-        gs.updatePromotionState({ currentClicks: gs.promotion.currentClicks + 1 });
+    try {
+        if (gs.isGameOver) return;
+
+        gs.addCapital(gs.promotion.currentWage);
+        showFeedbackText(`+$${formatNumber(gs.promotion.currentWage, 2)}`, 'var(--positive-feedback)');
+        pulseCapitalDisplay();
+
+        if (gs.promotion.currentClicks < gs.promotion.clicksNeeded) {
+            gs.updatePromotionState({ currentClicks: gs.promotion.currentClicks + 1 });
+        }
+        updateDisplay(); // Update UI after potential state change
+    } catch (e) {
+        console.error("Error in earnMinimumWage:", e);
     }
-    updateDisplay();
 }
 
 export function upgradePromotionAction() {
@@ -34,66 +39,89 @@ export function upgradePromotionAction() {
 
         // Check if this new level is a bonus level
         if (newLevel > 0 && newLevel % PROMOTION_BONUS_LEVEL_INTERVAL === 0) {
-            // --- Corrected Line Below (Removed 'cfg.') ---
-            const currentBonusAmount = PROMOTION_BONUS_WAGE_INCREASE;
-            // --- End Correction ---
+            const currentBonusAmount = PROMOTION_BONUS_WAGE_INCREASE; // Use imported constant
             showFeedbackText(`Prize! +$${formatNumber(currentBonusAmount, 2)} Bonus Wage/Click!`, 'var(--secondary-accent)', undefined, 2000);
         } else {
             showFeedbackText("Promoted! Wage Increased!", 'var(--positive-feedback)');
         }
 
-        updateDisplay();
+        updateDisplay(); // Update UI after state change
     } catch (e) {
         console.error("Error in upgradePromotionAction:", e);
     }
 }
 
 export function upgradeNeedAction(needType) {
-    // ... (same as before) ...
-     if (gs.isGameOver) return;
-    let needObj;
-    if (needType === 'food') { needObj = gs.food; }
-    else if (needType === 'shelter') { needObj = gs.shelter; }
-    else { return; }
-    if (needObj.level >= needObj.maxLevel) {
-        showFeedbackText("Already at Max Level!", 'var(--neutral-feedback)'); return;
-    }
-    if (gs.capital >= needObj.currentUpgradeCost) {
-        gs.addCapital(-needObj.currentUpgradeCost);
-        if (needType === 'food') {
-            gs.updateFoodState({ level: needObj.level + 1 });
-        } else if (needType === 'shelter') {
-            gs.updateShelterState({ level: needObj.level + 1 });
+    try {
+        if (gs.isGameOver) return;
+        let needObj;
+
+        if (needType === 'food') { needObj = gs.food; }
+        else if (needType === 'shelter') { needObj = gs.shelter; }
+        else { return; }
+
+        // Ensure cost is a number before comparison
+        const currentUpgradeCost = needObj.currentUpgradeCost;
+        if(typeof currentUpgradeCost !== 'number' || isNaN(currentUpgradeCost)) {
+            console.error(`Invalid upgrade cost for ${needType}:`, currentUpgradeCost);
+            return; // Prevent upgrade if cost is invalid
         }
-        calculateNeedStats(needType);
-        const feedbackMsg = needType === 'food' ? "Food Ops Upgraded!" : "Shelter Improved!";
-        showFeedbackText(feedbackMsg, 'var(--positive-feedback)');
-        pulseCapitalDisplay();
-        updateDisplay();
-    } else {
-        showFeedbackText("Not enough capital!", 'var(--negative-feedback)');
+
+
+        if (needObj.level >= needObj.maxLevel) {
+            showFeedbackText("Already at Max Level!", 'var(--neutral-feedback)'); return;
+        }
+        if (gs.capital >= currentUpgradeCost) {
+            gs.addCapital(-currentUpgradeCost); // Deduct cost
+
+            // Update level directly in gameState
+            if (needType === 'food') {
+                gs.updateFoodState({ level: needObj.level + 1 });
+            } else if (needType === 'shelter') {
+                gs.updateShelterState({ level: needObj.level + 1 });
+            }
+
+            calculateNeedStats(needType); // Recalculate costs, production, name etc. for the new level
+            const feedbackMsg = needType === 'food' ? "Food Ops Upgraded!" : "Shelter Improved!";
+            showFeedbackText(feedbackMsg, 'var(--positive-feedback)');
+            pulseCapitalDisplay();
+            updateDisplay(); // Update UI after state changes
+        } else {
+            showFeedbackText("Not enough capital!", 'var(--negative-feedback)');
+        }
+    } catch (e) {
+        console.error(`Error in upgradeNeedAction for ${needType}:`, e);
     }
 }
 
+
 export function manualForageAction() {
-    if (gs.isGameOver) return;
+    try {
+        if (gs.isGameOver) return;
 
-    const now = gs.gameSeconds; // Use game seconds as timer base
-    if (now < gs.food.forageCooldownEnd) {
-        // Optional: show feedback that it's on cooldown
-        // showFeedbackText("Forage resting...", "var(--neutral-feedback)");
-        return; // Exit if on cooldown
+        const now = gs.gameSeconds;
+        // Ensure cooldown end time is valid before comparison
+        const cooldownEndTime = gs.food.forageCooldownEnd;
+        if(typeof cooldownEndTime !== 'number' || isNaN(cooldownEndTime)) {
+            console.error("Invalid forageCooldownEnd:", cooldownEndTime);
+            gs.updateFoodState({ forageCooldownEnd: now }); // Reset cooldown if invalid
+            return;
+        }
+
+
+        if (now < cooldownEndTime) {
+            return; // Exit silently if on cooldown
+        }
+
+        // Apply hunger gain
+        gs.setHunger(gs.hunger + FORAGE_HUNGER_GAIN);
+
+        // Set cooldown end time
+        gs.updateFoodState({ forageCooldownEnd: now + FORAGE_COOLDOWN_SECONDS });
+
+        showFeedbackText(`Foraged! +${FORAGE_HUNGER_GAIN} Hunger`, 'var(--positive-feedback)');
+        updateDisplay(); // Update UI to show hunger change and cooldown state
+    } catch (e) {
+        console.error("Error in manualForageAction:", e);
     }
-
-    // Apply hunger gain
-    gs.setHunger(gs.hunger + FORAGE_HUNGER_GAIN);
-
-    // Set cooldown end time
-    gs.updateFoodState({ forageCooldownEnd: now + FORAGE_COOLDOWN_SECONDS });
-
-    // Give feedback
-    showFeedbackText(`Foraged! +${FORAGE_HUNGER_GAIN} Hunger`, 'var(--positive-feedback)');
-
-    // Update the display immediately to show hunger change and cooldown state
-    updateDisplay();
 }
