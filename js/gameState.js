@@ -27,7 +27,8 @@ export let food = {
     currentMaintenance: 0,
     currentUpgradeCost: 10,
     maxLevel: 20,
-    currentName: "None"
+    currentName: "None",
+    forageCooldownEnd: 0 // << NEW: Timestamp when forage cooldown ends
 };
 
 export let shelter = {
