@@ -12,6 +12,8 @@ export const currentStageDisplay = document.getElementById('currentStage');
 export const storyTextDisplay = document.getElementById('storyText');
 export const storyProgressBar = document.getElementById('storyProgress');
 
+export const eventWarningText = document.getElementById('eventWarningText');
+
 export const healthBar = document.getElementById('healthBar');
 export const healthText = document.getElementById('healthText');
 export const hungerBar = document.getElementById('hungerBar');
