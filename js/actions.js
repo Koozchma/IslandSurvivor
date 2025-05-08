@@ -20,27 +20,32 @@ export function earnMinimumWage() {
 }
 
 export function upgradePromotionAction() {
-    if (gs.isGameOver || gs.promotion.currentClicks < gs.promotion.clicksNeeded) return;
+    try {
+        if (gs.isGameOver || gs.promotion.currentClicks < gs.promotion.clicksNeeded) return;
 
-    const oldLevel = gs.promotion.level;
-    const newLevel = oldLevel + 1;
+        const oldLevel = gs.promotion.level;
+        const newLevel = oldLevel + 1;
 
-    gs.updatePromotionState({
-        level: newLevel,
-        currentClicks: 0
-    });
-    calculatePromotionStats(); // Recalculate derived wage including potential bonus
+        gs.updatePromotionState({
+            level: newLevel,
+            currentClicks: 0
+        });
+        calculatePromotionStats(); // Recalculate derived wage including potential bonus
 
-    // Check if this new level is a bonus level
-    if (newLevel > 0 && newLevel % PROMOTION_BONUS_LEVEL_INTERVAL === 0) {
-        // Calculate the specific bonus amount just added
-        const currentBonusAmount = cfg.PROMOTION_BONUS_WAGE_INCREASE;
-        showFeedbackText(`Prize! +$${formatNumber(currentBonusAmount, 2)} Bonus Wage/Click!`, 'var(--secondary-accent)', undefined, 2000); // Longer display
-    } else {
-        showFeedbackText("Promoted! Wage Increased!", 'var(--positive-feedback)');
+        // Check if this new level is a bonus level
+        if (newLevel > 0 && newLevel % PROMOTION_BONUS_LEVEL_INTERVAL === 0) {
+            // --- Corrected Line Below (Removed 'cfg.') ---
+            const currentBonusAmount = PROMOTION_BONUS_WAGE_INCREASE;
+            // --- End Correction ---
+            showFeedbackText(`Prize! +$${formatNumber(currentBonusAmount, 2)} Bonus Wage/Click!`, 'var(--secondary-accent)', undefined, 2000);
+        } else {
+            showFeedbackText("Promoted! Wage Increased!", 'var(--positive-feedback)');
+        }
+
+        updateDisplay();
+    } catch (e) {
+        console.error("Error in upgradePromotionAction:", e);
     }
-
-    updateDisplay(); // Update UI after state change
 }
 
 export function upgradeNeedAction(needType) {
