@@ -5,40 +5,48 @@ import { formatNumber, setBarColor } from './utils.js';
 import { getGameState } from './gameState.js';
 import { STAGES, BASE_INTEREST_RATE, MAX_STAT } from './config.js';
 
-export function updateStoryline() {
-    const { capital, currentStageIndex, isGameOver } = getGameState();
-    if (isGameOver) return;
+// Modify updateStoryline to also handle event warnings
+export function updateStorylineAndEvents() {
+    const { capital, currentStageIndex, isGameOver, nextEventIndex, timeUntilNextEvent } = getGameState();
 
-    // Ensure STAGES and currentStageIndex are valid before accessing
-    if (!STAGES || currentStageIndex < 0 || currentStageIndex >= STAGES.length) {
-        // console.error("Invalid STAGES or currentStageIndex:", STAGES, currentStageIndex);
-        return;
-    }
-    const currentStageData = STAGES[currentStageIndex];
-    if (!currentStageData) {
-        // console.error("No data for current stage index:", currentStageIndex);
-        return;
-    }
+    // Update Storyline Stage Text
+    if (!isGameOver && _DOM.storyTextDisplay) {
+        if (!STAGES || currentStageIndex < 0 || currentStageIndex >= STAGES.length) return;
+        const currentStageData = STAGES[currentStageIndex];
+        if (!currentStageData) return;
+        if (_DOM.currentStageDisplay) _DOM.currentStageDisplay.textContent = currentStageData.name;
+        _DOM.storyTextDisplay.textContent = currentStageData.text; // Set base story text
 
-    if (_DOM.currentStageDisplay) _DOM.currentStageDisplay.textContent = currentStageData.name;
-    if (_DOM.storyTextDisplay) _DOM.storyTextDisplay.textContent = currentStageData.text;
-
-    let progress = 0;
-    if (currentStageData.nextThreshold !== Infinity && currentStageIndex < STAGES.length) {
-        const prevThreshold = currentStageIndex > 0 ? STAGES[currentStageIndex - 1].nextThreshold : 0;
-        const range = currentStageData.nextThreshold - prevThreshold;
-        if (range > 0) {
-            progress = ((capital - prevThreshold) / range) * 100;
-        } else if (capital >= currentStageData.nextThreshold) {
-            progress = 100;
+        // Update Storyline Progress Bar
+        let progress = 0;
+        // ... (progress bar logic remains the same) ...
+         if (currentStageData.nextThreshold !== Infinity && currentStageIndex < STAGES.length) {
+            const prevThreshold = currentStageIndex > 0 ? STAGES[currentStageIndex - 1].nextThreshold : 0;
+            const range = currentStageData.nextThreshold - prevThreshold;
+            if (range > 0) {
+                 progress = ((capital - prevThreshold) / range) * 100;
+            } else if (capital >= currentStageData.nextThreshold) {
+                progress = 100;
+            }
+            progress = Math.max(0, Math.min(100, progress));
+        } else if (currentStageIndex >= STAGES.length - 1) {
+             progress = 100;
         }
-        progress = Math.max(0, Math.min(100, progress));
-    } else if (currentStageIndex >= STAGES.length - 1) {
-        progress = 100;
+        if (_DOM.storyProgressBar) _DOM.storyProgressBar.style.width = progress + '%';
     }
-    if (_DOM.storyProgressBar) _DOM.storyProgressBar.style.width = progress + '%';
-}
 
+    // Update Event Warning Text
+    if (_DOM.eventWarningText) {
+        if (!isGameOver && nextEventIndex < TIMED_EVENTS.length && timeUntilNextEvent !== Infinity) {
+            const nextEvent = TIMED_EVENTS[nextEventIndex];
+            _DOM.eventWarningText.textContent = `Upcoming: ${nextEvent.name} (${formatNumber(nextEvent.foodNeedIncr,1)} Food Need, ${formatNumber(nextEvent.shelterMaintIncr,2)} Shelter Cost) in ${timeUntilNextEvent}s!`;
+             _DOM.eventWarningText.style.display = 'block';
+        } else {
+            _DOM.eventWarningText.textContent = (nextEventIndex >= TIMED_EVENTS.length) ? "All scheduled events complete." : "";
+             _DOM.eventWarningText.style.display = (nextEventIndex >= TIMED_EVENTS.length) ? 'block' : 'none';
+        }
+    }
+}
 
 export function updateDisplay() {
     const { capital, gameSeconds, isGameOver, health, hunger, promotion, food, shelter } = getGameState();
@@ -145,7 +153,7 @@ export function updateDisplay() {
         _DOM.netGainDisplay.className = netGain >= 0 ? 'positive' : 'negative';
     }
 
-    updateStoryline();
+    updateStorylineAndEvents();
 }
 
 export function showGameOverUI(reason) {
