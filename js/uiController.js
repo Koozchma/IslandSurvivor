@@ -1,19 +1,19 @@
 // js/uiController.js
 
-import *_DOM from './domElements.js';
+// --- Ensure this import line has '* as _DOM' ---
+import * as _DOM from './domElements.js'; // <--- CORRECT: Line 3
+// --- Ensure this import line includes all needed constants ---
 import { formatNumber, setBarColor } from './utils.js';
 import { getGameState } from './gameState.js';
-// --- Corrected Import Line Below ---
-import { STAGES, BASE_INTEREST_RATE, MAX_STAT, FORAGE_MAX_FOOD_LEVEL, FORAGE_COOLDOWN_SECONDS, FORAGE_HUNGER_GAIN } from './config.js';
-// --- End Correction ---
+import { STAGES, BASE_INTEREST_RATE, MAX_STAT, FORAGE_MAX_FOOD_LEVEL, FORAGE_COOLDOWN_SECONDS, FORAGE_HUNGER_GAIN } from './config.js'; // <--- CORRECT: Includes FORAGE_MAX_FOOD_LEVEL etc.
 
-
-// function updateStoryline() remains the same as the last full version provided
 export function updateStoryline() {
     try {
         const { capital, currentStageIndex, isGameOver } = getGameState();
         if (isGameOver) return;
+
         if (!_DOM.currentStageDisplay || !_DOM.storyTextDisplay || !_DOM.storyProgressBar) return;
+
         if (!STAGES || currentStageIndex < 0 || currentStageIndex >= STAGES.length) return;
         const currentStageData = STAGES[currentStageIndex];
         if (!currentStageData) return;
@@ -40,40 +40,57 @@ export function updateStoryline() {
     }
 }
 
-// function updateDisplay() remains the same, using the imported FORAGE_MAX_FOOD_LEVEL correctly
+
 export function updateDisplay() {
     try {
         const { capital, gameSeconds, isGameOver, health, hunger, promotion, food, shelter } = getGameState();
-        if (isGameOver) return;
+        if (isGameOver) return; // Don't update UI if game is over
 
+        // Health Bar
         if (_DOM.healthBar) setBarColor(_DOM.healthBar, health);
         if (_DOM.healthBar) _DOM.healthBar.style.width = (health / MAX_STAT * 100) + '%';
         if (_DOM.healthText) _DOM.healthText.textContent = `${Math.max(0, Math.floor(health))}/${MAX_STAT}`;
 
+        // Hunger Bar
         if (_DOM.hungerBar) setBarColor(_DOM.hungerBar, hunger);
         if (_DOM.hungerBar) _DOM.hungerBar.style.width = (hunger / MAX_STAT * 100) + '%';
         if (_DOM.hungerText) _DOM.hungerText.textContent = `${Math.max(0, Math.floor(hunger))}/${MAX_STAT}`;
 
+        // Capital & Game Info
         if (_DOM.capitalDisplay) _DOM.capitalDisplay.textContent = formatNumber(capital);
         if (_DOM.interestRateDisplay) _DOM.interestRateDisplay.textContent = (BASE_INTEREST_RATE * 100).toFixed(2);
         if (_DOM.gameTimeDisplay) _DOM.gameTimeDisplay.textContent = gameSeconds + 's';
         if (_DOM.wageValueDisplay) _DOM.wageValueDisplay.textContent = `+$${formatNumber(promotion.currentWage, 2)}`;
 
+        // Promotion Section
         if (_DOM.currentWageDisplay) _DOM.currentWageDisplay.textContent = formatNumber(promotion.currentWage, 2);
         if (_DOM.promotionLevelDisplay) _DOM.promotionLevelDisplay.textContent = promotion.level;
         if (_DOM.promotionClicksDisplay) _DOM.promotionClicksDisplay.textContent = `Clicks: ${promotion.currentClicks}/${promotion.clicksNeeded}`;
         if (_DOM.promotionClickProgress) _DOM.promotionClickProgress.style.height = (promotion.currentClicks / promotion.clicksNeeded * 100) + '%';
         if (_DOM.promoteButton) _DOM.promoteButton.disabled = promotion.currentClicks < promotion.clicksNeeded;
 
+        // Food Operations Display
         if (_DOM.foodLevelDisplay) _DOM.foodLevelDisplay.textContent = food.level === 0 ? food.currentName : `${food.currentName} (Lvl ${food.level})`;
         if (_DOM.foodProductionDisplay) _DOM.foodProductionDisplay.textContent = `${formatNumber(food.currentProduction, 1)} units/sec`;
         if (_DOM.foodMaintenanceDisplay) _DOM.foodMaintenanceDisplay.textContent = `\$${formatNumber(food.currentMaintenance, 2)}/sec`;
-        if (_DOM.upgradeFoodButton) { /* ... */ } // Unchanged
+        if (_DOM.upgradeFoodButton) {
+            if (food.level < food.maxLevel) {
+                if (_DOM.foodUpgradeCostDisplay) _DOM.foodUpgradeCostDisplay.textContent = formatNumber(food.currentUpgradeCost, 0);
+                _DOM.upgradeFoodButton.innerHTML = `Upgrade (Cost: $${formatNumber(food.currentUpgradeCost, 0)})`;
+                _DOM.upgradeFoodButton.disabled = capital < food.currentUpgradeCost;
+            } else {
+                if (_DOM.foodUpgradeCostDisplay) _DOM.foodUpgradeCostDisplay.textContent = "MAX";
+                _DOM.upgradeFoodButton.innerHTML = `Max Level Reached`;
+                _DOM.upgradeFoodButton.disabled = true;
+            }
+        }
+        // Manual Forage Button Logic
         if (_DOM.manualForageButton) {
-            if (food.level <= FORAGE_MAX_FOOD_LEVEL) { // This line uses the imported constant
+            if (food.level <= FORAGE_MAX_FOOD_LEVEL) { // Use the imported constant
                 _DOM.manualForageButton.style.display = 'block';
                 const now = gameSeconds;
                 const cooldownRemaining = food.forageCooldownEnd - now;
+
                 if (cooldownRemaining > 0) {
                     _DOM.manualForageButton.disabled = true;
                     _DOM.manualForageButton.textContent = `Forage (Wait ${cooldownRemaining}s)`;
@@ -86,13 +103,27 @@ export function updateDisplay() {
             }
         }
 
+
+        // Shelter Operations Display
         if (_DOM.shelterLevelDisplay) _DOM.shelterLevelDisplay.textContent = shelter.level === 0 ? shelter.currentName : `${shelter.currentName} (Lvl ${shelter.level})`;
         if (_DOM.shelterQualityDisplay) _DOM.shelterQualityDisplay.textContent = shelter.level;
         if (_DOM.shelterMaintenanceDisplay) _DOM.shelterMaintenanceDisplay.textContent = `\$${formatNumber(shelter.currentMaintenance, 2)}/sec`;
-        if (_DOM.upgradeShelterButton) { /* ... */ } // Unchanged
+        if (_DOM.upgradeShelterButton) {
+            if (shelter.level < shelter.maxLevel) {
+                if (_DOM.shelterUpgradeCostDisplay) _DOM.shelterUpgradeCostDisplay.textContent = formatNumber(shelter.currentUpgradeCost, 0);
+                _DOM.upgradeShelterButton.innerHTML = `Upgrade (Cost: $${formatNumber(shelter.currentUpgradeCost, 0)})`;
+                _DOM.upgradeShelterButton.disabled = capital < shelter.currentUpgradeCost;
+            } else {
+                if (_DOM.shelterUpgradeCostDisplay) _DOM.shelterUpgradeCostDisplay.textContent = "MAX";
+                _DOM.upgradeShelterButton.innerHTML = `Max Level Reached`;
+                _DOM.upgradeShelterButton.disabled = true;
+            }
+        }
 
+        // Financial Summary
         const totalMaintenance = food.currentMaintenance + shelter.currentMaintenance;
         if (_DOM.totalMaintenanceDisplay) _DOM.totalMaintenanceDisplay.textContent = `\$${formatNumber(totalMaintenance, 2)} /sec`;
+
         const interestGain = capital > 0 ? capital * BASE_INTEREST_RATE : 0;
         const netGain = interestGain - totalMaintenance;
         if (_DOM.netGainDisplay) {
@@ -100,14 +131,13 @@ export function updateDisplay() {
             _DOM.netGainDisplay.className = netGain >= 0 ? 'positive' : 'negative';
         }
 
-        updateStoryline();
+        updateStoryline(); // Update storyline progress/text
 
     } catch (e) {
         console.error("Error during updateDisplay:", e);
     }
 }
 
-// functions showGameOverUI() and hideGameOverUI() remain the same as the last full version provided
 export function showGameOverUI(reason) {
     try {
         let title = "Game Over";
@@ -126,6 +156,7 @@ export function showGameOverUI(reason) {
         if (_DOM.gameOverMessage) _DOM.gameOverMessage.textContent = message;
         if (_DOM.gameOverScreen) _DOM.gameOverScreen.style.display = 'flex';
 
+        // Disable game interaction buttons
         if (_DOM.earnButton) _DOM.earnButton.disabled = true;
         if (_DOM.promoteButton) _DOM.promoteButton.disabled = true;
         if (_DOM.upgradeFoodButton) _DOM.upgradeFoodButton.disabled = true;
@@ -135,6 +166,7 @@ export function showGameOverUI(reason) {
         console.error("Error showing game over UI:", e);
     }
 }
+
 export function hideGameOverUI() {
     if(_DOM.gameOverScreen) _DOM.gameOverScreen.style.display = 'none';
 }
