@@ -1,6 +1,8 @@
+// js/coreLogic.js
+
 import * as gs from './gameState.js';
 import * as cfg from './config.js';
-import { updateDisplay, showGameOverUI } from './uiController.js';
+import { showGameOverUI } from './uiController.js'; // Import UI function for game over
 
 // --- STATS CALCULATORS ---
 export function calculatePromotionStats() {
@@ -10,78 +12,89 @@ export function calculatePromotionStats() {
 
 export function calculateNeedStats(needType) {
     let need, namesArray, productionValuesArray = null;
+    let stateUpdater; // Function to update state
+
     if (needType === 'food') {
-        need = gs.food; namesArray = cfg.FOOD_LEVEL_NAMES; productionValuesArray = cfg.FOOD_PRODUCTION_VALUES;
+        need = gs.food;
+        namesArray = cfg.FOOD_LEVEL_NAMES;
+        productionValuesArray = cfg.FOOD_PRODUCTION_VALUES;
+        stateUpdater = gs.updateFoodState;
     } else if (needType === 'shelter') {
-        need = gs.shelter; namesArray = cfg.SHELTER_LEVEL_NAMES;
+        need = gs.shelter;
+        namesArray = cfg.SHELTER_LEVEL_NAMES;
+        stateUpdater = gs.updateShelterState;
     } else { return; }
 
-    let newProduction = 0;
+    let newProduction = need.currentProduction; // Default to current, especially for shelter
     let newMaintenance = 0;
     let newBaseMaintenance = need.baseMaintenance;
 
     if (need.level > 0) {
-        if (productionValuesArray) {
+        if (productionValuesArray) { // Only calculate production for food
             newProduction = productionValuesArray[need.level] || 0;
         }
+        // Set base maintenance cost on the first upgrade (Level 1)
         if (need.level === 1 && newBaseMaintenance === 0.00) {
             if (needType === 'food') newBaseMaintenance = 0.06;
             if (needType === 'shelter') newBaseMaintenance = 0.09;
         }
+        // Maintenance = Base + Additional per level beyond 1
         newMaintenance = newBaseMaintenance + ((need.level - 1) * need.maintenancePerLevel);
     } else {
-        newBaseMaintenance = 0.00; // Reset if level is 0
+        newBaseMaintenance = 0.00; // Reset base if level is 0
     }
 
     const newUpgradeCost = (need.level >= need.maxLevel) ? Infinity : Math.floor(need.baseUpgradeCost * Math.pow(need.upgradeCostMultiplier, need.level));
     const newName = namesArray[need.level];
 
+    // Prepare the update payload
+    const updatePayload = {
+        currentMaintenance: newMaintenance,
+        currentUpgradeCost: newUpgradeCost,
+        currentName: newName,
+        baseMaintenance: newBaseMaintenance // Ensure base maintenance is updated in state
+    };
+
+    // Add production only if it's food
     if (needType === 'food') {
-        gs.updateFoodState({
-            currentProduction: newProduction,
-            currentMaintenance: newMaintenance,
-            currentUpgradeCost: newUpgradeCost,
-            currentName: newName,
-            baseMaintenance: newBaseMaintenance
-        });
-    } else if (needType === 'shelter') {
-        gs.updateShelterState({
-            currentMaintenance: newMaintenance,
-            currentUpgradeCost: newUpgradeCost,
-            currentName: newName,
-            baseMaintenance: newBaseMaintenance
-        });
+        updatePayload.currentProduction = newProduction;
     }
+
+    // Update the state using the appropriate setter
+    stateUpdater(updatePayload);
 }
 
 
 // --- GAME LOOP LOGIC ---
 export function updateHealthAndHunger() {
-    const { food, shelter } = gs.getGameState(); // Get current food and shelter states
+    const { food, shelter, hunger: currentHunger, health: currentHealth } = gs.getGameState(); // Get current states
 
+    // Hunger Logic
     const foodBalance = food.currentProduction - cfg.POPULATION_FOOD_CONSUMPTION_RATE;
-    let newHunger = gs.hunger;
+    let newHunger = currentHunger;
     if (foodBalance < 0) {
         newHunger += foodBalance * cfg.HUNGER_DECAY_NO_FOOD_BALANCE;
     } else if (newHunger < cfg.MAX_STAT) {
         newHunger += Math.min(cfg.STAT_REGEN_RATE * 2, foodBalance * 0.2 + cfg.STAT_REGEN_RATE * 0.5);
     }
-    gs.setHunger(Math.max(0, Math.min(cfg.MAX_STAT, newHunger)));
+    gs.setHunger(newHunger); // Use setter to update clamped value
 
+    // Health Logic
     let healthChange = 0;
-    let newHealth = gs.health;
+    let newHealth = currentHealth;
     if (shelter.level < cfg.SHELTER_HEALTH_MAINTENANCE_LEVEL) {
         healthChange -= cfg.HEALTH_DECAY_NO_SHELTER;
     }
-    if (gs.hunger < 25) {
+    if (gs.hunger < 25) { // Use the potentially updated hunger value
         healthChange -= cfg.HEALTH_DECAY_LOW_HUNGER;
     }
     if (healthChange === 0 && gs.hunger >= 50 && newHealth < cfg.MAX_STAT) {
         healthChange = cfg.STAT_REGEN_RATE;
     }
     newHealth += healthChange;
-    gs.setHealth(Math.max(0, Math.min(cfg.MAX_STAT, newHealth)));
+    gs.setHealth(newHealth); // Use setter to update clamped value
 
+    // Check Game Over (reads the potentially updated values)
     if (gs.hunger <= 0) triggerGameOver("hunger");
     else if (gs.health <= 0) triggerGameOver("health");
 }
@@ -89,27 +102,31 @@ export function updateHealthAndHunger() {
 export function applyMaintenanceCosts() {
     const { food, shelter } = gs.getGameState();
     const totalMaintenance = food.currentMaintenance + shelter.currentMaintenance;
-    gs.setCapital(gs.capital - totalMaintenance);
+    gs.addCapital(-totalMaintenance); // Use addCapital for modification
 }
 
 export function applyInterest() {
     if (gs.capital > 0) {
-        gs.setCapital(gs.capital + gs.capital * cfg.BASE_INTEREST_RATE);
+        gs.addCapital(gs.capital * cfg.BASE_INTEREST_RATE); // Use addCapital
     }
 }
 
 export function triggerGameOver(reason) {
-    if (gs.isGameOver) return;
+    if (gs.isGameOver) return; // Prevent multiple triggers
     gs.setIsGameOver(true);
-    // Game loop interval is cleared in main.js
-    showGameOverUI(reason);
+    console.log(`Game Over triggered: ${reason}`); // Log for debugging
+    // Game loop interval clearing is handled in main.js
+    showGameOverUI(reason); // Update UI
 }
 
 export function checkStorylineAdvance() {
     const { capital, currentStageIndex } = gs.getGameState();
+    // Ensure currentStageIndex is within bounds
+    if (currentStageIndex < 0 || currentStageIndex >= cfg.STAGES.length) return;
+
     const currentStageData = cfg.STAGES[currentStageIndex];
     if (capital >= currentStageData.nextThreshold && currentStageIndex < cfg.STAGES.length - 1) {
         gs.setCurrentStageIndex(currentStageIndex + 1);
-        // Feedback for stage advance is handled in uiController.updateStoryline or via showFeedbackText
+        // Feedback can be handled in uiController based on stage change detection if needed
     }
 }
