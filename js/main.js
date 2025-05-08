@@ -82,7 +82,7 @@ function gameLoop() {
 
     try {
         GameState.setGameSeconds(currentState.gameSeconds + 1);
-
+        handleTimedEvents(); // << NEW: Handle event countdowns and triggers
         updateHealthAndHunger(); // Can potentially set isGameOver
 
         // Re-check if the above function ended the game
