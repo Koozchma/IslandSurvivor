@@ -152,3 +152,9 @@ footer { margin-top: 20px; font-size: 0.85em; color: var(--text-color); opacity:
 .modal-content p { font-size: 1.1em; margin-bottom: 25px; color: var(--text-color); }
 .modal-content button { background-color: var(--positive-feedback); color: white; border: none; padding: 12px 25px; font-size: 1.1em; border-radius: 5px; cursor: pointer; transition: background-color 0.2s ease; }
 .modal-content button:hover { background-color: #27ae60; }
+
+.event-timer {
+    font-size: 1em;
+    margin-top: 10px;
+    color: #f39c12;
+}
