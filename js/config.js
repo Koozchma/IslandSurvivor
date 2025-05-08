@@ -1,13 +1,16 @@
 // js/config.js
 
 export const MAX_STAT = 100;
-export const POPULATION_FOOD_CONSUMPTION_RATE = 4; // Reduced from 5
-export const SHELTER_HEALTH_MAINTENANCE_LEVEL = 3; // Reduced from 5
-export const HEALTH_DECAY_NO_SHELTER = 0.35;        // Reduced from 0.5
-export const HEALTH_DECAY_LOW_HUNGER = 0.6;         // Slightly reduced from 0.75
-export const HUNGER_DECAY_NO_FOOD_BALANCE = 1;      // Kept at 1, balance is key
-export const STAT_REGEN_RATE = 0.35;                // Increased from 0.2/0.3
+export const POPULATION_FOOD_CONSUMPTION_RATE = 4; // Keep this for potential future use or complexity, but hunger decay is now primary
+export const SHELTER_HEALTH_MAINTENANCE_LEVEL = 15; // << CHANGED from 3
+export const HEALTH_DECAY_NO_SHELTER = 0.15;       // << CHANGED from 0.35 (Slower decay over more levels)
+export const HEALTH_DECAY_LOW_HUNGER = 0.6;
+export const BASE_HUNGER_DECAY = 1.5;              // << NEW: Hunger decays by this amount per second if food level < 15
+// export const HUNGER_DECAY_NO_FOOD_BALANCE = 1; // This is no longer the primary mechanism
+export const STAT_REGEN_RATE = 0.35;
 export const BASE_INTEREST_RATE = 0.01;
+export const PROMOTION_BONUS_LEVEL_INTERVAL = 5;   // << NEW: Every 5 levels...
+export const PROMOTION_BONUS_WAGE_INCREASE = 10;  // << NEW: ...get +10 bonus wage
 
 export const NUM_ABBREVIATIONS = [
     { value: 1e18, symbol: "E" },{ value: 1e15, symbol: "P" },{ value: 1e12, symbol: "T" },
@@ -22,42 +25,23 @@ export const FOOD_LEVEL_NAMES = [
 ];
 
 export const FOOD_PRODUCTION_VALUES = [ // Corresponds to levels 0-20
-    0,    // Level 0 (None)
-    1.5,  // Level 1 (Foraging Party)
-    3.0,  // Level 2 (Basic Traps)
-    5.0,  // Level 3 (Small Garden Plot) - Covers consumption of 4
-    7.5,  // Level 4 (Hunting & Gathering)
-    10.0, // Level 5 (Simple Farming)
-    13.0, // Level 6
-    16.5, // Level 7
-    20.5, // Level 8
-    25.0, // Level 9
-    30.0, // Level 10
-    36.0, // Level 11
-    42.5, // Level 12
-    50.0, // Level 13
-    58.0, // Level 14
-    66.5, // Level 15
-    75.0, // Level 16
-    85.0, // Level 17
-    96.0, // Level 18
-    108.0,// Level 19
-    120.0 // Level 20
+    0,    1.5,  3.0,  5.0,  7.5, 10.0, 13.0, 16.5, 20.5, 25.0, 30.0,
+    36.0, 42.5, 50.0, 58.0, 66.5, 75.0, 85.0, 96.0, 108.0, 120.0
 ];
 
 export const SHELTER_LEVEL_NAMES = [
     "None", "Leaf Lean-To", "Crude Dugout", "Basic Shack", "Wattle and Daub Hut", "Log Cabin", // Lv 0-5
-    "Timber Frame House", "Stone Cottage", "Fortified Wooden Walls", "Community Longhouse", "Watchtower Outpost", // Lv 6-10
+    "Timber Frame House", "Stone Cottage", "Fortified Wooden Walls", "Community Longhouse", "Watchtower Outpost", // Lv 11-15
     "Underground Bunker Access", "Reinforced Structures", "Small Barracks", "Defensive Perimeter", "Medical Bay", // Lv 11-15
     "Multi-Story Habitation Block", "Geothermal Climate Control", "Blast-Proof Shelters", "Self-Sustaining Arcology", "Island Citadel" // Lv 16-20
 ];
 
-export const STAGES = [ // Adjusted thresholds slightly due to rebalance
-    { threshold: 0, name: "The Shore", text: "You've landed. Survival is paramount. Manage Health & Hunger, earn for promotions, and build essential operations!", nextThreshold: 75 },
-    { threshold: 75, name: "Early Survival", text: "Food and shelter are rudimentary. Improve them and work those clicks for a promotion!", nextThreshold: 400 },
-    { threshold: 400, name: "Stabilizing", text: "Needs are becoming more secure. If Health or Hunger drop, it's trouble! Keep upgrading.", nextThreshold: 2000 },
-    { threshold: 2000, name: "Island Community", text: "A small community is forming. Advanced operations reflect this growth. Don't neglect your vital signs!", nextThreshold: 8000 },
-    { threshold: 8000, name: "Budding Economy", text: "Self-sufficiency is key. A higher wage from promotions will boost your capital.", nextThreshold: 40000 },
+export const STAGES = [ // Thresholds might need adjustment again later
+    { threshold: 0, name: "The Shore", text: "Survival is tough. Hunger and exposure constantly threaten. Upgrade Food and Shelter operations significantly!", nextThreshold: 75 },
+    { threshold: 75, name: "Early Survival", text: "Food and shelter are rudimentary. You need level 15 operations to stop the decline! Get clicks for promotions.", nextThreshold: 400 },
+    { threshold: 400, name: "Stabilizing?", text: "Are your needs met yet (Lvl 15 Ops)? Health and Hunger are constant concerns. Keep upgrading.", nextThreshold: 2000 },
+    { threshold: 2000, name: "Island Community", text: "A small community forms, demanding better sustenance and housing. Are basic needs finally stable?", nextThreshold: 8000 },
+    { threshold: 8000, name: "Budding Economy", text: "If basic needs are met, focus on increasing your income through promotions and prizes.", nextThreshold: 40000 },
     { threshold: 40000, name: "Technological Growth", text: "Advanced structures and operations are now possible. The dream of something bigger is forming.", nextThreshold: 200000 },
     { threshold: 200000, name: "Regional Power", text: "Your island nation is influential. What's next on the horizon?", nextThreshold: 800000 },
     { threshold: 800000, name: "The Space Dream", text: "The stars, once distant lights, now seem within reach. The ultimate goal: colonize space!", nextThreshold: Infinity }
