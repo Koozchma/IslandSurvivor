@@ -1,6 +1,6 @@
 // js/uiController.js
 
-import *_DOM from './domElements.js';
+import * as _DOM from './domElements.js'; // Corrected: Added 'as' keyword
 import { formatNumber, setBarColor } from './utils.js';
 import { getGameState } from './gameState.js';
 import { STAGES, BASE_INTEREST_RATE, MAX_STAT } from './config.js';
@@ -9,11 +9,14 @@ export function updateStoryline() {
     const { capital, currentStageIndex, isGameOver } = getGameState();
     if (isGameOver) return;
 
+    // Ensure STAGES and currentStageIndex are valid before accessing
     if (!STAGES || currentStageIndex < 0 || currentStageIndex >= STAGES.length) {
+        // console.error("Invalid STAGES or currentStageIndex:", STAGES, currentStageIndex);
         return;
     }
     const currentStageData = STAGES[currentStageIndex];
     if (!currentStageData) {
+        // console.error("No data for current stage index:", currentStageIndex);
         return;
     }
 
