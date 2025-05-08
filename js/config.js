@@ -7,7 +7,33 @@ export const HUNGER_STABILITY_LEVEL = 15;
 export const FORAGE_HUNGER_GAIN = 3;                // << CHANGED from 2 (Makes manual forage slightly more effective)
 export const FORAGE_COOLDOWN_SECONDS = 3;
 export const FORAGE_MAX_FOOD_LEVEL = 1;
-// --- End Hunger/Food Balancing Changes ---
+
+// --- NEW: Timed Event Config ---
+export const INITIAL_FOOD_NEED = 2.5; // Starting food need per second
+export const EVENT_INTERVAL_SECONDS = 20; // Time between events
+export const TIMED_EVENTS = [
+    // { id: 1, time: 20, foodNeedIncr: 0.5, shelterMaintIncr: 0.02, name: "Growing Population" },
+    // { id: 2, time: 40, foodNeedIncr: 0.6, shelterMaintIncr: 0.03, name: "Resource Scarcity" },
+    // { id: 3, time: 60, foodNeedIncr: 0.7, shelterMaintIncr: 0.04, name: "Increased Activity" },
+    // ... (Add up to 15 events with increasing difficulty)
+
+    // Example scaled events (adjust values as needed for balance):
+    { id: 1, time: 20, foodNeedIncr: 0.4, shelterMaintIncr: 0.02, name: "Settlers Arrive" },
+    { id: 2, time: 40, foodNeedIncr: 0.4, shelterMaintIncr: 0.03, name: "Tool Improvement Needs" },
+    { id: 3, time: 60, foodNeedIncr: 0.5, shelterMaintIncr: 0.03, name: "Larger Shelters Needed" },
+    { id: 4, time: 80, foodNeedIncr: 0.5, shelterMaintIncr: 0.04, name: "Water Purification Demands" },
+    { id: 5, time: 100, foodNeedIncr: 0.6, shelterMaintIncr: 0.04, name: "Expanding Community" },
+    { id: 6, time: 120, foodNeedIncr: 0.6, shelterMaintIncr: 0.05, name: "Storage Requirements Up" },
+    { id: 7, time: 140, foodNeedIncr: 0.7, shelterMaintIncr: 0.05, name: "More Complex Diets" },
+    { id: 8, time: 160, foodNeedIncr: 0.7, shelterMaintIncr: 0.06, name: "Infrastructure Maintenance" },
+    { id: 9, time: 180, foodNeedIncr: 0.8, shelterMaintIncr: 0.06, name: "Specialized Labor Needs" },
+    { id: 10, time: 200, foodNeedIncr: 0.8, shelterMaintIncr: 0.07, name: "Trade Post Demands" },
+    { id: 11, time: 220, foodNeedIncr: 0.9, shelterMaintIncr: 0.07, name: "Increased Defenses" },
+    { id: 12, time: 240, foodNeedIncr: 1.0, shelterMaintIncr: 0.08, name: "Research Costs" },
+    { id: 13, time: 260, foodNeedIncr: 1.1, shelterMaintIncr: 0.09, name: "Early Industrial Needs" },
+    { id: 14, time: 280, foodNeedIncr: 1.2, shelterMaintIncr: 0.10, name: "Resource Depletion Measures" },
+    { id: 15, time: 300, foodNeedIncr: 1.3, shelterMaintIncr: 0.11, name: "Population Boom" },
+];
 
 export const SHELTER_HEALTH_MAINTENANCE_LEVEL = 15;
 export const HEALTH_DECAY_NO_SHELTER = 0.15;
