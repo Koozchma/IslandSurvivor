@@ -14,11 +14,15 @@ import { MAX_STAT, FACTORY_DATA } from './config.js'; // Import FACTORY_DATA for
 
 
 let gameLoopInterval = null;
+let eventTimer = 20; // Initial countdown value
 
 function initializeGame() {
     console.log("[DEBUG] main.js: initializeGame START");
     try {
-        if (gameLoopInterval) { clearInterval(gameLoopInterval); gameLoopInterval = null; }
+        if (gameLoopInterval) {
+            clearInterval(gameLoopInterval);
+            gameLoopInterval = null;
+        }
 
         // Initialize Core State
         GameState.setIsGameOver(false);
@@ -40,7 +44,7 @@ function initializeGame() {
 
         GameState.initializeFactoryState(); // Reset all factory levels/stats
         for (const id in FACTORY_DATA) { // Use FACTORY_DATA keys for iteration
-             calculateFactoryStats(id); // Calculate initial cost/cps
+            calculateFactoryStats(id); // Calculate initial cost/cps
         }
 
         console.log("[DEBUG] main.js: All states initialized.");
@@ -48,33 +52,54 @@ function initializeGame() {
         hideGameOverUI();
 
         // Set initial button states based on fresh state
-        if(DOM.earnButton) DOM.earnButton.disabled = false;
-        if(DOM.promoteButton) DOM.promoteButton.disabled = GameState.getGameState().promotion.currentClicks < GameState.getGameState().promotion.clicksNeeded;
-        if(DOM.upgradeFoodButton) DOM.upgradeFoodButton.disabled = GameState.getGameState().capital < GameState.getGameState().food.currentUpgradeCost;
-        if(DOM.upgradeShelterButton) DOM.upgradeShelterButton.disabled = GameState.getGameState().capital < GameState.getGameState().shelter.currentUpgradeCost;
-        if(DOM.manualForageButton) DOM.manualForageButton.disabled = false;
+        if (DOM.earnButton) DOM.earnButton.disabled = false;
+        if (DOM.promoteButton) DOM.promoteButton.disabled = GameState.getGameState().promotion.currentClicks < GameState.getGameState().promotion.clicksNeeded;
+        if (DOM.upgradeFoodButton) DOM.upgradeFoodButton.disabled = GameState.getGameState().capital < GameState.getGameState().food.currentUpgradeCost;
+        if (DOM.upgradeShelterButton) DOM.upgradeShelterButton.disabled = GameState.getGameState().capital < GameState.getGameState().shelter.currentUpgradeCost;
+        if (DOM.manualForageButton) DOM.manualForageButton.disabled = false;
         // Factory button states are handled by updateDisplay based on factory state
 
         updateDisplay(); // Initial UI Render (will create factory cards)
         console.log("[DEBUG] main.js: Initial UI display updated.");
 
+        eventTimer = 20; // Reset event timer on game start
         gameLoopInterval = setInterval(gameLoop, 1000);
         console.log("[DEBUG] main.js: initializeGame - Game loop interval SET, ID:", gameLoopInterval);
 
     } catch (error) {
         console.error("[CRITICAL] main.js: Error during initializeGame:", error);
         GameState.setIsGameOver(true);
-        if(DOM.gameOverScreen) { /* ... show init error ... */ }
+        if (DOM.gameOverScreen) { /* ... show init error ... */ }
     }
     console.log("[DEBUG] main.js: initializeGame END");
 }
 
 
+function handleFoodEvent() {
+    const foodProductionNeeded = 1; // Food production required for the event
+    const eventReward = 5; // Capital reward for success
+    const eventPenalty = 5; // Health penalty for failure
+
+    const { food } = GameState.getGameState();
+
+    if (food.currentProduction >= foodProductionNeeded) {
+        GameState.addCapital(eventReward);
+        showFeedbackText(`Event Success! +$${eventReward}`, 'var(--positive-feedback)');
+    } else {
+        GameState.setHealth(GameState.getGameState().health - eventPenalty);
+        showFeedbackText(`Event Failed! -${eventPenalty} Health`, 'var(--negative-feedback)');
+    }
+    updateDisplay(); // Update UI to reflect changes
+}
+
 function gameLoop() {
     try {
         const currentState = GameState.getGameState();
         if (currentState.isGameOver) {
-            if (gameLoopInterval) { clearInterval(gameLoopInterval); gameLoopInterval = null; }
+            if (gameLoopInterval) {
+                clearInterval(gameLoopInterval);
+                gameLoopInterval = null;
+            }
             return;
         }
 
@@ -83,13 +108,23 @@ function gameLoop() {
         // Core game logic steps
         updateHealthAndHunger(); // Check survival first
         if (GameState.getGameState().isGameOver) { // Check if survival failed
-             if (gameLoopInterval) { clearInterval(gameLoopInterval); gameLoopInterval = null; }
-             return;
+            if (gameLoopInterval) {
+                clearInterval(gameLoopInterval);
+                gameLoopInterval = null;
+            }
+            return;
         }
         applyMaintenanceCosts(); // Apply costs for needs
-        applyInterest();         // Apply capital interest
-        applyFactoryProduction();// Apply factory income
+        applyInterest(); // Apply capital interest
+        applyFactoryProduction(); // Apply factory income
         checkStorylineAdvance(); // Check stage progression
+
+        // Event Timer
+        eventTimer--;
+        if (eventTimer <= 0) {
+            handleFoodEvent();
+            eventTimer = 20; // Reset the timer
+        }
 
         // Update UI last
         updateDisplay();
@@ -97,7 +132,10 @@ function gameLoop() {
     } catch (error) {
         console.error("[CRITICAL] Error within gameLoop:", error);
         triggerGameOver("error");
-        if(gameLoopInterval) { clearInterval(gameLoopInterval); gameLoopInterval = null; }
+        if (gameLoopInterval) {
+            clearInterval(gameLoopInterval);
+            gameLoopInterval = null;
+        }
     }
 }
 
@@ -106,11 +144,11 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log("[DEBUG] main.js: DOMContentLoaded event fired");
     try {
         // Check only the most critical elements needed before init
-        if (!DOM.earnButton || !DOM.capitalDisplay || !DOM.factoriesGrid || !DOM.restartButton ) {
-             const missing = ["earnButton", "capitalDisplay", "factoriesGrid", "restartButton"].find(id => !document.getElementById(id));
-             console.error(`[CRITICAL] Essential DOM element not found: ${missing || 'Unknown'}. Check IDs in index.html and domElements.js.`);
-             alert(`Error: Could not find essential game element: ${missing || 'Unknown'}. Check console (F12).`);
-             return;
+        if (!DOM.earnButton || !DOM.capitalDisplay || !DOM.factoriesGrid || !DOM.restartButton) {
+            const missing = ["earnButton", "capitalDisplay", "factoriesGrid", "restartButton"].find(id => !document.getElementById(id));
+            console.error(`[CRITICAL] Essential DOM element not found: ${missing || 'Unknown'}. Check IDs in index.html and domElements.js.`);
+            alert(`Error: Could not find essential game element: ${missing || 'Unknown'}. Check console (F12).`);
+            return;
         }
         console.log("[DEBUG] main.js: Essential DOM elements confirmed.");
 
@@ -128,8 +166,8 @@ document.addEventListener('DOMContentLoaded', () => {
         initializeGame();
 
     } catch (error) {
-         console.error("[CRITICAL] Error during initial setup (DOMContentLoaded):", error);
-         alert("A critical error occurred during game setup. Please check the console (F12).");
+        console.error("[CRITICAL] Error during initial setup (DOMContentLoaded):", error);
+        alert("A critical error occurred during game setup. Please check the console (F12).");
     }
 });
 
