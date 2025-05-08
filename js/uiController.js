@@ -45,7 +45,7 @@ function createFactoryCards() {
 
 export function updateStoryline() {
     // ... (Keep as is from previous full version) ...
-      try {
+    try {
         const { capital, currentStageIndex, isGameOver } = getGameState();
         if (isGameOver || !_DOM.currentStageDisplay || !_DOM.storyTextDisplay || !_DOM.storyProgressBar) return;
         if (!STAGES || currentStageIndex < 0 || currentStageIndex >= STAGES.length) return;
@@ -60,7 +60,7 @@ export function updateStoryline() {
             const prevThreshold = currentStageIndex > 0 ? STAGES[currentStageIndex - 1].nextThreshold : 0;
             const range = currentStageData.nextThreshold - prevThreshold;
             if (range > 0 && typeof capital === 'number' && typeof prevThreshold === 'number' && typeof currentStageData.nextThreshold === 'number') {
-                 progress = ((capital - prevThreshold) / range) * 100;
+                progress = ((capital - prevThreshold) / range) * 100;
             } else if (capital >= currentStageData.nextThreshold) {
                 progress = 100;
             }
@@ -124,7 +124,7 @@ export function updateDisplay() {
                 _DOM.upgradeFoodButton.innerHTML = `Max Level Reached`;
                 _DOM.upgradeFoodButton.disabled = true;
             }
-         }
+        }
         if (_DOM.manualForageButton) { /* ... (same logic as before) ... */
             if (food.level <= FORAGE_MAX_FOOD_LEVEL) {
                 _DOM.manualForageButton.style.display = 'block';
@@ -147,7 +147,7 @@ export function updateDisplay() {
         if (_DOM.shelterQualityDisplay) _DOM.shelterQualityDisplay.textContent = shelter.level;
         if (_DOM.shelterMaintenanceDisplay) _DOM.shelterMaintenanceDisplay.textContent = `\$${formatNumber(shelter.currentMaintenance, 2)}/sec`;
         if (_DOM.upgradeShelterButton) { /* ... (same logic as before) ... */
-             if (shelter.level < shelter.maxLevel) {
+            if (shelter.level < shelter.maxLevel) {
                 if (_DOM.shelterUpgradeCostDisplay) _DOM.shelterUpgradeCostDisplay.textContent = formatNumber(shelter.currentUpgradeCost, 0);
                 _DOM.upgradeShelterButton.innerHTML = `Upgrade (Cost: $${formatNumber(shelter.currentUpgradeCost, 0)})`;
                 _DOM.upgradeShelterButton.disabled = capital < shelter.currentUpgradeCost;
@@ -160,30 +160,30 @@ export function updateDisplay() {
 
         // --- Update Factory Cards ---
         let totalCps = 0;
-        if(currentFactories) { // Check if factories state exists
-             for (const id in currentFactories) {
-                 const factoryState = currentFactories[id];
-                 const factoryBase = FACTORY_DATA[id];
-                 totalCps += factoryState.currentCps;
+        if (currentFactories) { // Check if factories state exists
+            for (const id in currentFactories) {
+                const factoryState = currentFactories[id];
+                const factoryBase = FACTORY_DATA[id];
+                totalCps += factoryState.currentCps;
 
-                 const levelSpan = document.getElementById(`factory-${id}-level`);
-                 const cpsSpan = document.getElementById(`factory-${id}-cps`);
-                 const button = document.getElementById(`factory-${id}-button`);
+                const levelSpan = document.getElementById(`factory-${id}-level`);
+                const cpsSpan = document.getElementById(`factory-${id}-cps`);
+                const button = document.getElementById(`factory-${id}-button`);
 
-                 if (levelSpan) levelSpan.textContent = factoryState.level;
-                 if (cpsSpan) cpsSpan.textContent = formatNumber(factoryState.currentCps, 2);
-                 if (button) {
-                      if (factoryState.level === 0) {
-                          button.innerHTML = `Buy (Cost: $${formatNumber(factoryBase.baseCost, 0)})`;
-                          button.disabled = capital < factoryBase.baseCost;
-                      } else if (factoryState.level < factoryState.maxLevel) {
-                          button.innerHTML = `Upgrade (Cost: $${formatNumber(factoryState.currentUpgradeCost, 0)})`;
-                          button.disabled = capital < factoryState.currentUpgradeCost;
-                      } else {
-                          button.innerHTML = `Max Level (${factoryState.maxLevel})`;
-                          button.disabled = true;
-                      }
-                 }
+                if (levelSpan) levelSpan.textContent = factoryState.level;
+                if (cpsSpan) cpsSpan.textContent = formatNumber(factoryState.currentCps, 2);
+                if (button) {
+                    if (factoryState.level === 0) {
+                        button.innerHTML = `Buy (Cost: $${formatNumber(factoryBase.baseCost, 0)})`;
+                        button.disabled = capital < factoryBase.baseCost;
+                    } else if (factoryState.level < factoryState.maxLevel) {
+                        button.innerHTML = `Upgrade (Cost: $${formatNumber(factoryState.currentUpgradeCost, 0)})`;
+                        button.disabled = capital < factoryState.currentUpgradeCost;
+                    } else {
+                        button.innerHTML = `Max Level (${factoryState.maxLevel})`;
+                        button.disabled = true;
+                    }
+                }
             }
         }
         // --- End Factory Card Updates ---
@@ -199,6 +199,11 @@ export function updateDisplay() {
             _DOM.netGainDisplay.className = netGain >= 0 ? 'positive' : 'negative';
         }
 
+        // Update Event Timer Display
+        if (_DOM.eventCountdownDisplay) {
+            _DOM.eventCountdownDisplay.textContent = eventTimer;
+        }
+
         updateStoryline();
 
     } catch (e) {
@@ -209,22 +214,27 @@ export function updateDisplay() {
 
 export function showGameOverUI(reason) {
     // ... (Keep as is from previous full version) ...
-      try {
+    try {
         if (!_DOM.gameOverScreen || !_DOM.gameOverTitle || !_DOM.gameOverMessage) return;
         let title = "Game Over";
         let message = "Your journey has ended.";
         if (reason === "hunger") { /* ... */ } else if (reason === "health") { /* ... */ } else if (reason === "error") { /* ... */ }
-        _DOM.gameOverTitle.textContent = title; _DOM.gameOverMessage.textContent = message;
+        _DOM.gameOverTitle.textContent = title;
+        _DOM.gameOverMessage.textContent = message;
         _DOM.gameOverScreen.style.display = 'flex';
-        if (_DOM.earnButton) _DOM.earnButton.disabled = true; if (_DOM.promoteButton) _DOM.promoteButton.disabled = true;
-        if (_DOM.upgradeFoodButton) _DOM.upgradeFoodButton.disabled = true; if (_DOM.upgradeShelterButton) _DOM.upgradeShelterButton.disabled = true;
+        if (_DOM.earnButton) _DOM.earnButton.disabled = true;
+        if (_DOM.promoteButton) _DOM.promoteButton.disabled = true;
+        if (_DOM.upgradeFoodButton) _DOM.upgradeFoodButton.disabled = true;
+        if (_DOM.upgradeShelterButton) _DOM.upgradeShelterButton.disabled = true;
         if (_DOM.manualForageButton) _DOM.manualForageButton.disabled = true;
         // Optionally disable factory buttons too
         document.querySelectorAll('.factory-card button').forEach(btn => btn.disabled = true);
-    } catch (e) { console.error("Error showing game over UI:", e); }
+    } catch (e) {
+        console.error("Error showing game over UI:", e);
+    }
 }
 
 export function hideGameOverUI() {
     // ... (Keep as is from previous full version) ...
-     if(_DOM.gameOverScreen) _DOM.gameOverScreen.style.display = 'none';
+    if (_DOM.gameOverScreen) _DOM.gameOverScreen.style.display = 'none';
 }
