@@ -3,6 +3,7 @@
 import * as gs from './gameState.js';
 import * as cfg from './config.js';
 import { showGameOverUI } from './uiController.js';
+import { updateDisplay } from './uiController.js'; // Need to call updateDisplay after unlock
 
 // --- STATS CALCULATORS ---
 export function calculatePromotionStats() {
@@ -77,6 +78,47 @@ export function calculateNeedStats(needType) {
     }
 }
 
+// New function to calculate Science stats
+export function calculateScienceStats() {
+    try {
+        const { science } = gs.getGameState();
+        const levelIndex = Math.max(0, Math.min(science.level, science.maxLevel));
+
+        let newProduction = 0;
+        let newMaintenance = 0;
+        let newBaseMaintenance = science.baseMaintenance;
+
+         if (levelIndex > 0) {
+            if (levelIndex < cfg.SCIENCE_PRODUCTION_VALUES.length) { // Check bounds for production array
+                newProduction = cfg.SCIENCE_PRODUCTION_VALUES[levelIndex] !== undefined ? cfg.SCIENCE_PRODUCTION_VALUES[levelIndex] : 0;
+            }
+             // Set base maintenance only once when reaching level 1 for science
+            if (levelIndex === 1 && newBaseMaintenance === 0.00) {
+                newBaseMaintenance = cfg.SCIENCE_BASE_MAINTENANCE > 0 ? cfg.SCIENCE_BASE_MAINTENANCE : 0.00; // Use config
+            }
+            // Calculate maintenance based on levels > 0
+            newMaintenance = newBaseMaintenance + ((levelIndex - 1) * cfg.SCIENCE_MAINTENANCE_PER_LEVEL);
+         } else {
+             newBaseMaintenance = 0.00;
+             newProduction = 0;
+         }
+
+
+        const newUpgradeCost = (levelIndex >= science.maxLevel) ? Infinity : Math.floor(cfg.SCIENCE_BASE_UPGRADE_COST * Math.pow(cfg.SCIENCE_UPGRADE_COST_MULTIPLIER, levelIndex));
+        const newName = (levelIndex < cfg.SCIENCE_LEVEL_NAMES.length && cfg.SCIENCE_LEVEL_NAMES[levelIndex] !== undefined) ? cfg.SCIENCE_LEVEL_NAMES[levelIndex] : "Unknown";
+
+        gs.updateScienceState({
+            currentProduction: newProduction,
+            currentMaintenance: newMaintenance,
+            currentUpgradeCost: newUpgradeCost,
+            currentName: newName,
+            baseMaintenance: newBaseMaintenance // Persist potential change to base maintenance
+        });
+    } catch (e) {
+        console.error("Error in calculateScienceStats:", e);
+    }
+}
+
 
 // --- GAME LOOP LOGIC ---
 export function updateHealthAndHunger() {
@@ -124,8 +166,14 @@ export function updateHealthAndHunger() {
 
 export function applyMaintenanceCosts() {
     try {
-        const { food, shelter } = gs.getGameState();
-        const totalMaintenance = food.currentMaintenance + shelter.currentMaintenance;
+        const { food, shelter, science, scienceUnlocked } = gs.getGameState();
+        let totalMaintenance = food.currentMaintenance + shelter.currentMaintenance;
+
+        // Add science maintenance if unlocked
+        if (scienceUnlocked) {
+            totalMaintenance += science.currentMaintenance;
+        }
+
         gs.addCapital(-totalMaintenance);
     } catch (e) {
          console.error("Error in applyMaintenanceCosts:", e);
@@ -143,6 +191,20 @@ export function applyInterest() {
         console.error("Error in applyInterest:", e);
     }
 }
+
+// New function to apply Science production
+export function applyScienceProduction() {
+    try {
+        const { science, scienceUnlocked } = gs.getGameState();
+        // Only produce science points if Science is unlocked and production is greater than 0
+        if (scienceUnlocked && science.currentProduction > 0) {
+             gs.addSciencePoints(science.currentProduction);
+        }
+    } catch (e) {
+        console.error("Error in applyScienceProduction:", e);
+    }
+}
+
 
 export function triggerGameOver(reason) {
     // Ensure we don't trigger multiple times
@@ -167,5 +229,33 @@ export function checkStorylineAdvance() {
         }
     } catch (e) {
         console.error("Error in checkStorylineAdvance:", e);
+    }
+}
+
+// New function to check for Science unlock condition
+export function checkScienceUnlock() {
+    try {
+        const { food, shelter, scienceUnlocked } = gs.getGameState();
+
+        // Unlock Science if both needs are at max level and Science isn't already unlocked
+        if (food.level >= food.maxLevel && shelter.level >= shelter.maxLevel && !scienceUnlocked) {
+            console.log("[DEBUG] coreLogic.js: Food and Shelter maxed. Unlocking Science.");
+
+            gs.setScienceUnlocked(true);
+
+            // Initialize Science state to level 1 upon unlock (assuming level 0 is "None")
+             gs.updateScienceState({
+                level: 1, // Start at level 1 upon unlock
+                currentSciencePoints: 0 // Start with 0 science points
+            });
+            calculateScienceStats(); // Calculate initial science stats
+
+            // Trigger a UI update to show the new section
+            updateDisplay();
+
+            // Optional: Add a storyline update or special message for this milestone
+        }
+    } catch (e) {
+        console.error("Error in checkScienceUnlock:", e);
     }
 }
