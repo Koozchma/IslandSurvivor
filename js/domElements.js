@@ -23,6 +23,9 @@ export const promoteButton = document.getElementById('promoteButton');
 export const promotionClicksDisplay = document.getElementById('promotionClicksDisplay');
 export const promotionClickProgress = document.getElementById('promotionClickProgress');
 
+// Container for Food and Shelter sections to hide them later
+export const needsSectionContainer = document.getElementById('needsSection');
+
 export const foodLevelDisplay = document.getElementById('foodLevelDisplay');
 export const foodProductionDisplay = document.getElementById('foodProductionDisplay');
 export const foodMaintenanceDisplay = document.getElementById('foodMaintenanceDisplay');
@@ -36,14 +39,17 @@ export const shelterMaintenanceDisplay = document.getElementById('shelterMainten
 export const shelterUpgradeCostDisplay = document.getElementById('shelterUpgradeCostDisplay');
 export const upgradeShelterButton = document.getElementById('upgradeShelterButton');
 
-// New Science Section DOM Elements
-export const scienceSectionContainer = document.getElementById('scienceSection'); // Container for the new section
+// Science Section DOM Elements
+export const scienceSectionContainer = document.getElementById('scienceSection'); // Container for the science stats section
 export const sciencePointsDisplay = document.getElementById('sciencePointsDisplay');
 export const scienceLevelDisplay = document.getElementById('scienceLevelDisplay');
 export const scienceProductionDisplay = document.getElementById('scienceProductionDisplay');
-export const scienceMaintenanceDisplay = document.getElementById('scienceMaintenanceDisplay');
-export const scienceUpgradeCostDisplay = document.getElementById('scienceUpgradeCostDisplay');
+export const scienceMaintenanceDisplay = document.getElementById('scienceMaintenanceDisplay'); // Uncomment if science has maintenance
 export const upgradeScienceButton = document.getElementById('upgradeScienceButton');
+
+// New Science Tech Tree DOM Elements
+export const techTreeSectionContainer = document.getElementById('techTreeSection'); // Container for the tech tree section
+export const researchItemsGrid = document.getElementById('researchItemsGrid'); // Container for the research items grid
 
 
 export const gameOverScreen = document.getElementById('gameOverScreen');
