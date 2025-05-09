@@ -2,8 +2,9 @@
 
 import * as gs from './gameState.js';
 import * as cfg from './config.js';
-import { showGameOverUI } from './uiController.js';
-import { updateDisplay } from './uiController.js'; // Need to call updateDisplay after unlock
+import { showGameOverUI, updateDisplay } from './uiController.js'; // ensure updateDisplay is imported
+import { showFeedbackText } from './utils.js'; // Import showFeedbackText for research effects
+
 
 // --- STATS CALCULATORS ---
 export function calculatePromotionStats() {
@@ -78,7 +79,6 @@ export function calculateNeedStats(needType) {
     }
 }
 
-// New function to calculate Science stats
 export function calculateScienceStats() {
     try {
         const { science } = gs.getGameState();
@@ -120,6 +120,45 @@ export function calculateScienceStats() {
 }
 
 
+// --- RESEARCH LOGIC ---
+
+// Function to apply the effect of a research item
+export function applyResearchEffect(researchItem) {
+    try {
+        if (!researchItem || !researchItem.effect) {
+            console.warn("[WARN] applyResearchEffect: No effect defined for research item.", researchItem);
+            return;
+        }
+
+        switch (researchItem.effect.type) {
+            case 'text_feedback':
+                // Display a feedback message for now
+                showFeedbackText(researchItem.effect.text, 'var(--research-color)', undefined, 3000); // Use research color for feedback
+                console.log(`[DEBUG] Research "${researchItem.name}" applied: ${researchItem.effect.text}`);
+                break;
+            // Add more effect types here later, e.g.,
+            // case 'unlock_factory':
+            //     unlockFactory(researchItem.effect.factoryKey);
+            //     break;
+            // case 'boost_all_factories':
+            //     boostFactoryProduction(researchItem.effect.percentage);
+            //     break;
+            // case 'reduce_all_factory_maintenance':
+            //     reduceFactoryMaintenance(researchItem.effect.percentage);
+            //     break;
+             case 'set_health_regen_boost': // Example: Science research could boost health regen
+                 // This would require state for health regen boost and updating updateHealthAndHunger
+                 console.log(`[DEBUG] Research "${researchItem.name}" applied: Health regen boosted.`);
+                 break;
+            default:
+                console.warn("[WARN] applyResearchEffect: Unknown effect type:", researchItem.effect.type, "for item:", researchItem.key);
+        }
+    } catch (e) {
+        console.error("Error in applyResearchEffect:", e);
+    }
+}
+
+
 // --- GAME LOOP LOGIC ---
 export function updateHealthAndHunger() {
     try {
@@ -148,9 +187,16 @@ export function updateHealthAndHunger() {
         if (gs.getGameState().hunger < 25) {
             healthChange -= cfg.HEALTH_DECAY_LOW_HUNGER;
         }
+        // Base health regen if needs met and health is below max
         if (healthChange === 0 && gs.getGameState().hunger >= 50 && currentHealth < cfg.MAX_STAT) {
              healthChange = cfg.STAT_REGEN_RATE;
         }
+         // TODO: Add potential health regen boost from science research here
+         // if (gs.getGameState().unlockedResearch.includes('health_regen_boost')) {
+         //     healthChange += some_boost_amount;
+         // }
+
+
         gs.setHealth(currentHealth + healthChange); // Update state via setter
 
         // Check Game Over using updated state
@@ -192,7 +238,6 @@ export function applyInterest() {
     }
 }
 
-// New function to apply Science production
 export function applyScienceProduction() {
     try {
         const { science, scienceUnlocked } = gs.getGameState();
@@ -232,7 +277,7 @@ export function checkStorylineAdvance() {
     }
 }
 
-// New function to check for Science unlock condition
+// Function to check if Science should be unlocked
 export function checkScienceUnlock() {
     try {
         const { food, shelter, scienceUnlocked } = gs.getGameState();
@@ -250,12 +295,30 @@ export function checkScienceUnlock() {
             });
             calculateScienceStats(); // Calculate initial science stats
 
-            // Trigger a UI update to show the new section
+            // Trigger a UI update to show the new section(s) and hide old ones
             updateDisplay();
 
             // Optional: Add a storyline update or special message for this milestone
         }
     } catch (e) {
         console.error("Error in checkScienceUnlock:", e);
+    }
+}
+
+// New function to check for available research unlocks (based on science points)
+export function checkResearchUnlockConditions() {
+    try {
+        const { scienceUnlocked, science, unlockedResearch } = gs.getGameState();
+        if (!scienceUnlocked) return; // Only check if Science is unlocked
+
+        // This function doesn't *unlock* anything, just checks if conditions *could* be met
+        // Actual unlocking happens via user action (clicking the button)
+        // This function is more of a placeholder if there were passive research unlocks
+        // For this implementation, the logic is handled in the action.
+        // We'll keep it simple and rely on the action's checks for now.
+        // If you had passive research that unlocks automatically, this is where it would go.
+
+    } catch (e) {
+         console.error("Error in checkResearchUnlockConditions:", e);
     }
 }
