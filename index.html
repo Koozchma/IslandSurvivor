@@ -46,6 +46,20 @@
             <p class="interest-info">Base Interest: <span id="interestRateDisplay">1.00</span>% / sec</p>
             <p class="cps-info">Factory Production: $<span id="totalCpsDisplay">0.00</span> / sec</p> <p class="maintenance-info">Maintenance Costs: $<span id="totalMaintenanceDisplay">0.00</span> / sec</p> <p class="net-gain-info">Net Gain (Est.): $<span id="netGainDisplay">0.00</span> / sec</p> </div>
 
+        <div class="career-section">
+            <h2>Career Path</h2>
+            <div class="career-card">
+                <p>Current Wage: $<span id="currentWageDisplay">1.00</span> / click</p>
+                <p>Promotion Level: <span id="promotionLevelDisplay">0</span></p>
+                <div class="promotion-progress-container">
+                    <button id="promoteButton" disabled>Get Promotion</button> <div class="click-progress-visual-container">
+                        <div class="click-progress-bar-vertical" id="promotionClickProgress"></div>
+                    </div>
+                    <span id="promotionClicksDisplay">Clicks: 0/10</span>
+                </div>
+            </div>
+        </div>
+
         <div class="needs-section" id="needsSection">
             <h2>Basic Needs</h2>
             <div class="needs-grid">
