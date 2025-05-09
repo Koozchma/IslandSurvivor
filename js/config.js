@@ -38,7 +38,6 @@ export const SHELTER_LEVEL_NAMES = [
     "Multi-Story Habitation Block", "Geothermal Climate Control", "Blast-Proof Shelters", "Self-Sustaining Arcology", "Island Citadel"
 ];
 
-// New Science Constants
 export const SCIENCE_LEVEL_NAMES = [
     "None", "Basic Observation", "Hypothesis Formulation", "Simple Experimentation", "Data Analysis", "Theoretical Research",
     "Applied Science", "Laboratory Setup", "Peer Review Network", "Specialized Fields", "Interdisciplinary Studies",
@@ -51,12 +50,44 @@ export const SCIENCE_PRODUCTION_VALUES = [
     5.7,  6.8,  8.0,  9.3, 10.7, 12.2, 13.8, 15.5, 17.3, 19.2
 ]; // Production in Science Points per second
 
-export const SCIENCE_BASE_MAINTENANCE = 0.00; // Science might not cost capital maintenance
-export const SCIENCE_MAINTENANCE_PER_LEVEL = 0.00; // No capital maintenance for science initially
+export const SCIENCE_BASE_MAINTENANCE = 0.00;
+export const SCIENCE_MAINTENANCE_PER_LEVEL = 0.00;
 
-export const SCIENCE_BASE_UPGRADE_COST = 500; // Initial cost to unlock/upgrade Science
+export const SCIENCE_BASE_UPGRADE_COST = 500;
 export const SCIENCE_UPGRADE_COST_MULTIPLIER = 1.7;
 export const SCIENCE_MAX_LEVEL = 20;
+
+// New Science Research Items
+export const RESEARCH_ITEMS = [
+    {
+        key: 'basic_automation',
+        name: 'Basic Automation',
+        description: 'Unlocks simple automated machinery for factories.',
+        cost: 50, // Science points cost
+        unlocked: false, // State managed in gameState, but defined here
+        // effect: { type: 'unlock_factory', factoryKey: 'basic_robot_factory' } // Example effect
+        effect: { type: 'text_feedback', text: 'Automation concept unlocked!' } // Simple feedback for now
+    },
+    {
+        key: 'improved_logistics',
+        name: 'Improved Logistics',
+        description: 'Increases factory production efficiency.',
+        cost: 150,
+        unlocked: false,
+        // effect: { type: 'boost_all_factories', percentage: 0.1 } // Example effect
+         effect: { type: 'text_feedback', text: 'Logistics improved!' } // Simple feedback for now
+    },
+     {
+        key: 'energy_efficiency',
+        name: 'Energy Efficiency',
+        description: 'Reduces factory maintenance costs.',
+        cost: 250,
+        unlocked: false,
+        // effect: { type: 'reduce_all_factory_maintenance', percentage: 0.15 } // Example effect
+         effect: { type: 'text_feedback', text: 'Energy costs reduced!' } // Simple feedback for now
+    }
+    // Add more research items here...
+];
 
 
 export const STAGES = [
