@@ -3,8 +3,10 @@
 import * as gs from './gameState.js';
 import { showFeedbackText, pulseCapitalDisplay, formatNumber } from './utils.js';
 import { updateDisplay } from './uiController.js';
-import { calculatePromotionStats, calculateNeedStats } from './coreLogic.js';
-import { PROMOTION_BONUS_LEVEL_INTERVAL, PROMOTION_BONUS_WAGE_INCREASE, FORAGE_HUNGER_GAIN, FORAGE_COOLDOWN_SECONDS } from './config.js';
+// Import new calculation functions
+import { calculatePromotionStats, calculateNeedStats, calculateScienceStats } from './coreLogic.js';
+// Import new science config
+import { PROMOTION_BONUS_LEVEL_INTERVAL, PROMOTION_BONUS_WAGE_INCREASE, FORAGE_HUNGER_GAIN, FORAGE_COOLDOWN_SECONDS, SCIENCE_BASE_UPGRADE_COST, SCIENCE_UPGRADE_COST_MULTIPLIER, SCIENCE_MAX_LEVEL } from './config.js';
 
 
 export function earnMinimumWage() {
@@ -123,5 +125,42 @@ export function manualForageAction() {
         updateDisplay(); // Update UI to show hunger change and cooldown state
     } catch (e) {
         console.error("Error in manualForageAction:", e);
+    }
+}
+
+// New action to upgrade Science
+export function upgradeScienceAction() {
+    try {
+        const { isGameOver, science, capital, scienceUnlocked } = gs.getGameState();
+        if (gs.isGameOver || !scienceUnlocked) {
+             if(!scienceUnlocked) console.log("[DEBUG] upgradeScienceAction skipped, Science not unlocked.");
+             return; // Only allow upgrade if game is not over and Science IS unlocked
+        }
+
+        // Ensure cost is a number before comparison
+        const currentUpgradeCost = science.currentUpgradeCost;
+        if(typeof currentUpgradeCost !== 'number' || isNaN(currentUpgradeCost)) {
+            console.error(`Invalid science upgrade cost:`, currentUpgradeCost);
+            return; // Prevent upgrade if cost is invalid
+        }
+
+
+        if (science.level >= science.maxLevel) {
+            showFeedbackText("Already at Max Level!", 'var(--neutral-feedback)'); return;
+        }
+        if (capital >= currentUpgradeCost) {
+            gs.addCapital(-currentUpgradeCost); // Deduct cost
+
+            gs.updateScienceState({ level: science.level + 1 }); // Update science level
+            calculateScienceStats(); // Recalculate science stats for the new level
+
+            showFeedbackText("Science Upgraded!", 'var(--science-color)'); // Use the science color for feedback
+            pulseCapitalDisplay();
+            updateDisplay(); // Update UI after state changes
+        } else {
+            showFeedbackText("Not enough capital!", 'var(--negative-feedback)');
+        }
+    } catch (e) {
+        console.error(`Error in upgradeScienceAction:`, e);
     }
 }
