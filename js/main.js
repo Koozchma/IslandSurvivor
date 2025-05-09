@@ -25,7 +25,8 @@ function initializeGame() {
 
         console.log("[DEBUG] main.js: Setting initial game state...");
         GameState.setIsGameOver(false);
-        GameState.setCapital(0.00);
+        // GameState.setCapital(0.00);
+        GameState.setCapital(2000000.00);
         GameState.setGameSeconds(0);
         GameState.setCurrentStageIndex(0);
         GameState.setHealth(MAX_STAT);
