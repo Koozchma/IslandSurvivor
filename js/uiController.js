@@ -3,7 +3,12 @@
 import * as _DOM from './domElements.js'; // Ensure 'as' is present
 import { formatNumber, setBarColor } from './utils.js';
 import { getGameState } from './gameState.js';
-import { STAGES, BASE_INTEREST_RATE, MAX_STAT, FORAGE_MAX_FOOD_LEVEL, FORAGE_COOLDOWN_SECONDS, FORAGE_HUNGER_GAIN } from './config.js'; // Ensure all needed configs are imported
+// Ensure all needed configs are imported, including science ones
+import {
+    STAGES, BASE_INTEREST_RATE, MAX_STAT,
+    FORAGE_MAX_FOOD_LEVEL, FORAGE_COOLDOWN_SECONDS, FORAGE_HUNGER_GAIN,
+    SCIENCE_MAX_LEVEL // Import science max level
+} from './config.js';
 
 export function updateStoryline() {
     try {
@@ -59,7 +64,7 @@ export function updateStoryline() {
 
 export function updateDisplay() {
     try {
-        const { capital, gameSeconds, isGameOver, health, hunger, promotion, food, shelter } = getGameState();
+        const { capital, gameSeconds, isGameOver, health, hunger, promotion, food, shelter, science, scienceUnlocked } = getGameState();
 
         // Stop updating UI if game is over or critical elements missing
         if (isGameOver || !_DOM.capitalDisplay || !_DOM.healthBar || !_DOM.hungerBar) {
@@ -82,12 +87,13 @@ export function updateDisplay() {
         if (_DOM.gameTimeDisplay) _DOM.gameTimeDisplay.textContent = gameSeconds + 's';
         if (_DOM.wageValueDisplay) _DOM.wageValueDisplay.textContent = `+$${formatNumber(promotion.currentWage, 2)}`;
 
-        // Promotion Section
+        // Promotion Section (always visible)
         if (_DOM.currentWageDisplay) _DOM.currentWageDisplay.textContent = formatNumber(promotion.currentWage, 2);
         if (_DOM.promotionLevelDisplay) _DOM.promotionLevelDisplay.textContent = promotion.level;
         if (_DOM.promotionClicksDisplay) _DOM.promotionClicksDisplay.textContent = `Clicks: ${promotion.currentClicks}/${promotion.clicksNeeded}`;
         if (_DOM.promotionClickProgress) _DOM.promotionClickProgress.style.height = (promotion.currentClicks / promotion.clicksNeeded * 100) + '%';
         if (_DOM.promoteButton) _DOM.promoteButton.disabled = promotion.currentClicks < promotion.clicksNeeded;
+
 
         // Food Operations Display
         if (_DOM.foodLevelDisplay) _DOM.foodLevelDisplay.textContent = food.level === 0 ? food.currentName : `${food.currentName} (Lvl ${food.level})`;
@@ -138,11 +144,40 @@ export function updateDisplay() {
             }
         }
 
-        // Financial Summary
-        const totalMaintenance = food.currentMaintenance + shelter.currentMaintenance;
+        // New Science Section Display
+        if (_DOM.scienceSectionContainer) {
+             if (scienceUnlocked) {
+                 _DOM.scienceSectionContainer.classList.remove('hidden'); // Show science section
+                 if (_DOM.sciencePointsDisplay) _DOM.sciencePointsDisplay.textContent = formatNumber(science.currentSciencePoints, 2);
+                 if (_DOM.scienceLevelDisplay) _DOM.scienceLevelDisplay.textContent = science.level === 0 ? science.currentName : `${science.currentName} (Lvl ${science.level})`;
+                 if (_DOM.scienceProductionDisplay) _DOM.scienceProductionDisplay.textContent = `${formatNumber(science.currentProduction, 2)} points/sec`;
+                 // if (_DOM.scienceMaintenanceDisplay) _DOM.scienceMaintenanceDisplay.textContent = `\$${formatNumber(science.currentMaintenance, 2)}/sec`; // Uncomment if science has maintenance
+
+                 if (_DOM.upgradeScienceButton) {
+                    if (science.level < science.maxLevel) {
+                        if (_DOM.scienceUpgradeCostDisplay) _DOM.scienceUpgradeCostDisplay.textContent = formatNumber(science.currentUpgradeCost, 0);
+                        _DOM.upgradeScienceButton.innerHTML = `Upgrade (Cost: $${formatNumber(science.currentUpgradeCost, 0)})`;
+                        _DOM.upgradeScienceButton.disabled = capital < science.currentUpgradeCost;
+                    } else {
+                        if (_DOM.scienceUpgradeCostDisplay) _DOM.scienceUpgradeCostDisplay.textContent = "MAX";
+                        _DOM.upgradeScienceButton.innerHTML = `Max Level Reached`;
+                        _DOM.upgradeScienceButton.disabled = true;
+                    }
+                }
+
+             } else {
+                 _DOM.scienceSectionContainer.classList.add('hidden'); // Hide science section
+             }
+        }
+
+
+        // Financial Summary (always visible)
+        // Total maintenance includes needs and science (if unlocked) - logic is in coreLogic.js
+        const totalMaintenance = food.currentMaintenance + shelter.currentMaintenance + (scienceUnlocked ? science.currentMaintenance : 0);
         if (_DOM.totalMaintenanceDisplay) _DOM.totalMaintenanceDisplay.textContent = `\$${formatNumber(totalMaintenance, 2)} /sec`;
         const interestGain = capital > 0 ? capital * BASE_INTEREST_RATE : 0;
         const netGain = interestGain - totalMaintenance;
+
         if (_DOM.netGainDisplay) {
             _DOM.netGainDisplay.textContent = `${formatNumber(netGain, 2)} /sec`;
             _DOM.netGainDisplay.className = netGain >= 0 ? 'positive' : 'negative';
@@ -182,12 +217,13 @@ export function showGameOverUI(reason) {
         _DOM.gameOverMessage.textContent = message;
         _DOM.gameOverScreen.style.display = 'flex';
 
-        // Disable game interaction buttons - check if they exist first
+        // Disable all interactive buttons regardless of state
         if (_DOM.earnButton) _DOM.earnButton.disabled = true;
         if (_DOM.promoteButton) _DOM.promoteButton.disabled = true;
         if (_DOM.upgradeFoodButton) _DOM.upgradeFoodButton.disabled = true;
         if (_DOM.upgradeShelterButton) _DOM.upgradeShelterButton.disabled = true;
         if (_DOM.manualForageButton) _DOM.manualForageButton.disabled = true;
+        if (_DOM.upgradeScienceButton) _DOM.upgradeScienceButton.disabled = true; // Disable science button too
     } catch (e) {
         console.error("Error showing game over UI:", e);
     }
