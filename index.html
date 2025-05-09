@@ -46,22 +46,7 @@
             <p class="interest-info">Base Interest: <span id="interestRateDisplay">1.00</span>% / sec</p>
             <p class="cps-info">Factory Production: $<span id="totalCpsDisplay">0.00</span> / sec</p> <p class="maintenance-info">Maintenance Costs: $<span id="totalMaintenanceDisplay">0.00</span> / sec</p> <p class="net-gain-info">Net Gain (Est.): $<span id="netGainDisplay">0.00</span> / sec</p> </div>
 
-        <div class="career-section">
-            <h2>Career Path</h2>
-            <div class="career-card">
-                <p>Current Wage: $<span id="currentWageDisplay">1.00</span> / click</p>
-                <p>Promotion Level: <span id="promotionLevelDisplay">0</span></p>
-                <div class="promotion-progress-container">
-                    <button id="promoteButton" disabled>Get Promotion</button>
-                    <div class="click-progress-visual-container">
-                        <div class="click-progress-bar-vertical" id="promotionClickProgress"></div>
-                    </div>
-                    <span id="promotionClicksDisplay">Clicks: 0/10</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="needs-section">
+        <div class="needs-section" id="needsSection">
             <h2>Basic Needs</h2>
             <div class="needs-grid">
                 <div class="need-card" id="foodCard">
@@ -69,8 +54,7 @@
                     <p>Type: <span id="foodLevelDisplay">None</span></p>
                     <p>Production: <span id="foodProductionDisplay">0 units/sec</span></p>
                     <p>Maintenance: <span id="foodMaintenanceDisplay">$0.00/sec</span></p>
-                    <button id="manualForageButton" style="display: none; margin-bottom: 8px; background-color: var(--positive-feedback);">Manual Forage</button>
-                    <button id="upgradeFoodButton">Upgrade (Cost: $<span id="foodUpgradeCostDisplay">10</span>)</button>
+                    <button id="manualForageButton">Manual Forage</button> <button id="upgradeFoodButton">Upgrade (Cost: $<span id="foodUpgradeCostDisplay">10</span>)</button>
                 </div>
 
                 <div class="need-card" id="shelterCard">
@@ -91,6 +75,12 @@
                 <p>Production: <span id="scienceProductionDisplay">0.0 points/sec</span></p>
                  <button id="upgradeScienceButton">Upgrade (Cost: $<span id="scienceUpgradeCostDisplay">500</span>)</button>
              </div>
+        </div>
+
+        <div class="tech-tree-section hidden" id="techTreeSection">
+            <h2>🔬 Science Research</h2>
+             <div class="tech-tree-grid" id="researchItemsGrid">
+                </div>
         </div>
 
 
