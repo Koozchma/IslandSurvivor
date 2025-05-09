@@ -38,6 +38,27 @@ export const SHELTER_LEVEL_NAMES = [
     "Multi-Story Habitation Block", "Geothermal Climate Control", "Blast-Proof Shelters", "Self-Sustaining Arcology", "Island Citadel"
 ];
 
+// New Science Constants
+export const SCIENCE_LEVEL_NAMES = [
+    "None", "Basic Observation", "Hypothesis Formulation", "Simple Experimentation", "Data Analysis", "Theoretical Research",
+    "Applied Science", "Laboratory Setup", "Peer Review Network", "Specialized Fields", "Interdisciplinary Studies",
+    "Advanced Lab Equipment", "Publication & Outreach", "Grant Acquisition", "Team Collaboration", "Breakthrough Discovery",
+    "Technological Innovation", "Global Recognition", "Paradigm Shift", "Universal Principles", "Scientific Singularity"
+];
+
+export const SCIENCE_PRODUCTION_VALUES = [
+    0,    0.1,  0.25, 0.5,  0.8,  1.2,  1.7,  2.3,  3.0,  3.8,  4.7,
+    5.7,  6.8,  8.0,  9.3, 10.7, 12.2, 13.8, 15.5, 17.3, 19.2
+]; // Production in Science Points per second
+
+export const SCIENCE_BASE_MAINTENANCE = 0.00; // Science might not cost capital maintenance
+export const SCIENCE_MAINTENANCE_PER_LEVEL = 0.00; // No capital maintenance for science initially
+
+export const SCIENCE_BASE_UPGRADE_COST = 500; // Initial cost to unlock/upgrade Science
+export const SCIENCE_UPGRADE_COST_MULTIPLIER = 1.7;
+export const SCIENCE_MAX_LEVEL = 20;
+
+
 export const STAGES = [
     { threshold: 0, name: "The Shore", text: "Survival is tough. Hunger and exposure constantly threaten. Upgrade Food and Shelter operations significantly!", nextThreshold: 75 },
     { threshold: 75, name: "Early Survival", text: "Food and shelter are rudimentary. You need level 15 operations to truly stabilize! Get clicks for promotions.", nextThreshold: 400 },
