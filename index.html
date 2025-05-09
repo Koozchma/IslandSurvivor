@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Capital - Survival Idle</title>
+    <title>Capital - Island Survival & Industry</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -12,8 +12,8 @@
 <body>
     <div class="container">
         <header>
-            <h1>Capital 💰</h1>
-            <p class="subtitle">From Pennies to Power... If You Survive</p>
+            <h1>Capital 💰🏭</h1>
+            <p class="subtitle">Survive, Build, Thrive</p>
         </header>
 
         <div class="status-bars-section">
@@ -44,9 +44,7 @@
                 (<span class="button-value" id="wageValueDisplay">+$1.00</span>)
             </button>
             <p class="interest-info">Base Interest: <span id="interestRateDisplay">1.00</span>% / sec</p>
-            <p class="maintenance-info">Maintenance Costs: $<span id="totalMaintenanceDisplay">0.00</span> / sec</p>
-            <p class="net-gain-info">Net Gain (Est.): $<span id="netGainDisplay">0.00</span> / sec</p>
-        </div>
+            <p class="cps-info">Factory Production: $<span id="totalCpsDisplay">0.00</span> / sec</p> <p class="maintenance-info">Maintenance Costs: $<span id="totalMaintenanceDisplay">0.00</span> / sec</p> <p class="net-gain-info">Net Gain (Est.): $<span id="netGainDisplay">0.00</span> / sec</p> </div>
 
         <div class="career-section">
             <h2>Career Path</h2>
@@ -64,7 +62,7 @@
         </div>
 
         <div class="needs-section">
-            <h2>Operations</h2>
+            <h2>Basic Needs</h2>
             <div class="needs-grid">
                 <div class="need-card" id="foodCard">
                     <h3>🍎 Food Operations</h3>
@@ -85,11 +83,16 @@
             </div>
         </div>
 
+        <div class="factories-section">
+            <h2>Factories</h2>
+            <div class="factories-grid">
+                </div>
+        </div>
+
         <div class="storyline">
             <h2>Your Journey: <span id="currentStage">The Shore</span></h2>
-            <p id="storyText">You've landed on an island. Survival is paramount. Manage your Health and Hunger. Work hard for promotions and upgrade your means of survival!</p>
-            <div class="progress-bar-container">
-                <div class="progress-bar" id="storyProgress"></div>
+            <p id="storyText">You've landed on an island. Survival is paramount. Manage your Health and Hunger while building your capital. Can you establish industry?</p>
+            <div class="progress-bar-container"> <div class="progress-bar" id="storyProgress"></div>
             </div>
         </div>
 
