@@ -34,7 +34,7 @@ function initializeGame() {
         GameState.setHealth(MAX_STAT);
         GameState.setHunger(MAX_STAT);
         GameState.setScienceUnlocked(false); // Initialize science unlocked flag
-        GameState.unlockedResearch = []; // Initialize unlocked research array
+        GameState.unlockedResearch.length = 0; // Correct way to clear an exported array's contents
 
 
         console.log("[DEBUG] main.js: Initializing Promotion State...");
