@@ -3,10 +3,15 @@
 import * as gs from './gameState.js';
 import { showFeedbackText, pulseCapitalDisplay, formatNumber } from './utils.js';
 import { updateDisplay } from './uiController.js';
-// Import new calculation functions
-import { calculatePromotionStats, calculateNeedStats, calculateScienceStats } from './coreLogic.js';
-// Import new science config
-import { PROMOTION_BONUS_LEVEL_INTERVAL, PROMOTION_BONUS_WAGE_INCREASE, FORAGE_HUNGER_GAIN, FORAGE_COOLDOWN_SECONDS, SCIENCE_BASE_UPGRADE_COST, SCIENCE_UPGRADE_COST_MULTIPLIER, SCIENCE_MAX_LEVEL } from './config.js';
+// Import new calculation and logic functions
+import { calculatePromotionStats, calculateNeedStats, calculateScienceStats, applyResearchEffect } from './coreLogic.js';
+// Import necessary config constants including research items
+import {
+    PROMOTION_BONUS_LEVEL_INTERVAL, PROMOTION_BONUS_WAGE_INCREASE,
+    FORAGE_HUNGER_GAIN, FORAGE_COOLDOWN_SECONDS,
+    SCIENCE_BASE_UPGRADE_COST, SCIENCE_UPGRADE_COST_MULTIPLIER, SCIENCE_MAX_LEVEL,
+    RESEARCH_ITEMS // Import the research items list
+} from './config.js';
 
 
 export function earnMinimumWage() {
@@ -128,7 +133,6 @@ export function manualForageAction() {
     }
 }
 
-// New action to upgrade Science
 export function upgradeScienceAction() {
     try {
         const { isGameOver, science, capital, scienceUnlocked } = gs.getGameState();
@@ -162,5 +166,52 @@ export function upgradeScienceAction() {
         }
     } catch (e) {
         console.error(`Error in upgradeScienceAction:`, e);
+    }
+}
+
+// New action to unlock a research item
+export function unlockResearchAction(researchKey) {
+    try {
+        const { isGameOver, science, unlockedResearch, scienceUnlocked } = gs.getGameState();
+         if (isGameOver || !scienceUnlocked) {
+              console.log("[DEBUG] unlockResearchAction skipped, game over or Science not unlocked.");
+              return; // Cannot unlock research if game over or Science is not unlocked
+         }
+
+        const researchItem = RESEARCH_ITEMS.find(item => item.key === researchKey);
+
+        if (!researchItem) {
+            console.error(`[ERROR] unlockResearchAction: Research item with key "${researchKey}" not found.`);
+            return; // Research item not found
+        }
+
+        if (unlockedResearch.includes(researchKey)) {
+            console.log(`[DEBUG] unlockResearchAction: Research "${researchItem.name}" already unlocked.`);
+            showFeedbackText("Already unlocked!", 'var(--neutral-feedback)');
+            return; // Already unlocked
+        }
+
+        // Ensure cost is a number before comparison
+        const researchCost = researchItem.cost;
+         if(typeof researchCost !== 'number' || isNaN(researchCost)) {
+             console.error(`Invalid cost for research item "${researchKey}":`, researchCost);
+             return; // Prevent unlock if cost is invalid
+         }
+
+
+        if (science.currentSciencePoints >= researchCost) {
+            gs.addSciencePoints(-researchCost); // Deduct science points
+            gs.addUnlockedResearch(researchKey); // Add to unlocked research in state
+
+            // Apply the effect of the research
+            applyResearchEffect(researchItem);
+
+            showFeedbackText(`Research Complete: ${researchItem.name}!`, 'var(--research-color)'); // Use research color for feedback
+            updateDisplay(); // Update UI to reflect unlocked research and science points
+        } else {
+            showFeedbackText("Not enough Science Points!", 'var(--negative-feedback)');
+        }
+    } catch (e) {
+        console.error(`Error in unlockResearchAction for "${researchKey}":`, e);
     }
 }
