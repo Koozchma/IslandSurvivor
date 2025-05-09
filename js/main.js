@@ -4,10 +4,13 @@ console.log("[DEBUG] main.js: Script start");
 import * as DOM from './domElements.js';
 import * as GameState from './gameState.js';
 import { updateDisplay, hideGameOverUI } from './uiController.js';
-import { earnMinimumWage, upgradePromotionAction, upgradeNeedAction, manualForageAction } from './actions.js';
+// Import new action
+import { earnMinimumWage, upgradePromotionAction, upgradeNeedAction, manualForageAction, upgradeScienceAction } from './actions.js';
+// Import new logic functions
 import {
-    updateHealthAndHunger, applyMaintenanceCosts, applyInterest,
-    calculatePromotionStats, calculateNeedStats, checkStorylineAdvance, triggerGameOver
+    updateHealthAndHunger, applyMaintenanceCosts, applyInterest, applyScienceProduction, // Import new production logic
+    calculatePromotionStats, calculateNeedStats, calculateScienceStats, // Import new calculation logic
+    checkStorylineAdvance, triggerGameOver, checkScienceUnlock // Import new unlock logic
 } from './coreLogic.js';
 import { MAX_STAT, FOOD_LEVEL_NAMES, SHELTER_LEVEL_NAMES } from './config.js';
 
@@ -25,12 +28,12 @@ function initializeGame() {
 
         console.log("[DEBUG] main.js: Setting initial game state...");
         GameState.setIsGameOver(false);
-        // GameState.setCapital(0.00);
-        GameState.setCapital(2000000.00);
+        GameState.setCapital(0.00);
         GameState.setGameSeconds(0);
         GameState.setCurrentStageIndex(0);
         GameState.setHealth(MAX_STAT);
         GameState.setHunger(MAX_STAT);
+        GameState.setScienceUnlocked(false); // Initialize science unlocked flag
 
         console.log("[DEBUG] main.js: Initializing Promotion State...");
         GameState.updatePromotionState({ level: 0, currentClicks: 0 });
@@ -44,18 +47,31 @@ function initializeGame() {
         GameState.updateShelterState({ level: 0, baseMaintenance: 0.00 });
         calculateNeedStats('shelter');
 
+        // Initialize Science State (even though hidden initially)
+        console.log("[DEBUG] main.js: Initializing Science State...");
+         GameState.updateScienceState({ level: 0, currentSciencePoints: 0 }); // Initialize points
+        calculateScienceStats();
+
+
         console.log("[DEBUG] main.js: Hiding Game Over UI...");
         hideGameOverUI();
 
         console.log("[DEBUG] main.js: Setting initial button states...");
+        // Buttons disabled state will be set by updateDisplay based on state (e.g., scienceUnlocked)
         if(DOM.earnButton) DOM.earnButton.disabled = false;
         if(DOM.promoteButton) DOM.promoteButton.disabled = GameState.promotion.currentClicks < GameState.promotion.clicksNeeded;
-        if(DOM.upgradeFoodButton) DOM.upgradeFoodButton.disabled = GameState.capital < GameState.food.currentUpgradeCost;
-        if(DOM.upgradeShelterButton) DOM.upgradeShelterButton.disabled = GameState.capital < GameState.shelter.currentUpgradeCost;
-        if(DOM.manualForageButton) DOM.manualForageButton.disabled = false;
+         // Ensure upgrade buttons exist before trying to reference
+        if(DOM.upgradeFoodButton) DOM.upgradeFoodButton.disabled = true; // updateDisplay will correct
+        if(DOM.upgradeShelterButton) DOM.upgradeShelterButton.disabled = true; // updateDisplay will correct
+        if(DOM.manualForageButton) DOM.manualForageButton.disabled = true; // updateDisplay will correct
+         if(DOM.upgradeScienceButton) DOM.upgradeScienceButton.disabled = true; // updateDisplay will correct
+
+
+        if(DOM.restartButton) DOM.restartButton.disabled = false; // Enable restart on init
+
 
         console.log("[DEBUG] main.js: Performing initial UI update...");
-        updateDisplay(); // Initial render
+        updateDisplay(); // Initial render will hide science section
 
         console.log("[DEBUG] main.js: Setting game loop interval...");
         gameLoopInterval = setInterval(gameLoop, 1000);
@@ -79,7 +95,7 @@ function initializeGame() {
 
 
 function gameLoop() {
-    console.log("[DEBUG] main.js: gameLoop TICK START"); // <<< LOOP TICK START
+    // console.log("[DEBUG] main.js: gameLoop TICK START"); // <<< LOOP TICK START - Can be noisy
     try {
         const currentState = GameState.getGameState();
 
@@ -89,10 +105,12 @@ function gameLoop() {
             return;
         }
 
-        // console.log("[DEBUG] main.js: Updating game second..."); // Optional: Can be noisy
         GameState.setGameSeconds(currentState.gameSeconds + 1);
 
-        // console.log("[DEBUG] main.js: Updating health/hunger..."); // Optional: Can be noisy
+        // Always check for the science unlock condition
+        checkScienceUnlock();
+
+        // Update health/hunger
         updateHealthAndHunger();
 
         if (GameState.getGameState().isGameOver) {
@@ -101,13 +119,17 @@ function gameLoop() {
              return;
         }
 
-        // console.log("[DEBUG] main.js: Applying maintenance..."); // Optional: Can be noisy
+        // Apply maintenance (logic inside handles science if unlocked)
         applyMaintenanceCosts();
-        // console.log("[DEBUG] main.js: Applying interest..."); // Optional: Can be noisy
+        // Apply interest
         applyInterest();
-        // console.log("[DEBUG] main.js: Checking storyline..."); // Optional: Can be noisy
+        // Apply science production (only if unlocked)
+        applyScienceProduction();
+
+
+        // Check storyline advance
         checkStorylineAdvance();
-        // console.log("[DEBUG] main.js: Updating display..."); // Optional: Can be noisy
+        // Update display
         updateDisplay();
 
     } catch (error) {
@@ -115,7 +137,7 @@ function gameLoop() {
         triggerGameOver("error"); // Use coreLogic's function
         if(gameLoopInterval) { clearInterval(gameLoopInterval); gameLoopInterval = null; }
     }
-    // console.log("[DEBUG] main.js: gameLoop TICK END"); // Optional: Can be noisy
+    // console.log("[DEBUG] main.js: gameLoop TICK END"); // <<< LOOP TICK END - Can be noisy
 }
 
 // --- Event Listeners & Startup ---
@@ -124,18 +146,25 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
         // Check essential DOM elements
         console.log("[DEBUG] main.js: Checking essential DOM elements...");
-        // ... (checks remain the same)
-        if (!DOM.earnButton || !DOM.capitalDisplay || !DOM.healthBar || !DOM.hungerBar || !DOM.promoteButton || !DOM.upgradeFoodButton || !DOM.upgradeShelterButton || !DOM.restartButton) {
-             const missing = ["earnButton", "capitalDisplay", "healthBar", "hungerBar", "promoteButton", "upgradeFoodButton", "upgradeShelterButton", "restartButton"].find(id => !document.getElementById(id));
+        // Check elements required for basic game loop and UI
+         if (!DOM.earnButton || !DOM.capitalDisplay || !DOM.healthBar || !DOM.hungerBar || !DOM.promoteButton || !DOM.restartButton || !DOM.scienceSectionContainer || !DOM.upgradeScienceButton) {
+             const missing = ["earnButton", "capitalDisplay", "healthBar", "hungerBar", "promoteButton", "restartButton", "scienceSection", "upgradeScienceButton"].find(id => !document.getElementById(id));
              console.error(`[CRITICAL] Essential DOM element not found: ${missing || 'Unknown'}. Check IDs in index.html and domElements.js.`);
              alert(`Error: Could not find essential game element: ${missing || 'Unknown'}. Check console (F12).`);
              return;
         }
+        // Check elements for needs section (always present in HTML, but logic is conditional)
+        if (!DOM.upgradeFoodButton || !DOM.upgradeShelterButton || !DOM.manualForageButton) {
+             const missing = ["upgradeFoodButton", "upgradeShelterButton", "manualForageButton"].find(id => !document.getElementById(id));
+              console.warn(`[WARN] Essential needs button DOM element not found: ${missing || 'Unknown'}. Check IDs.`); // Warning instead of critical error if needs elements are missing
+         }
+
+
         console.log("[DEBUG] main.js: Essential DOM elements confirmed.");
 
         // Attach event listeners
         console.log("[DEBUG] main.js: Attaching event listeners...");
-        // ... (listeners remain the same) ...
+        // ... (listeners remain the same, add science button listener) ...
          if (DOM.earnButton) DOM.earnButton.addEventListener('click', earnMinimumWage);
         if (DOM.promoteButton) DOM.promoteButton.addEventListener('click', upgradePromotionAction);
         if (DOM.upgradeFoodButton) DOM.upgradeFoodButton.addEventListener('click', () => upgradeNeedAction('food'));
@@ -145,6 +174,14 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
              console.warn("[WARN] main.js: Manual Forage button not found during listener setup (OK if hidden initially).");
         }
+        // Add listener for the new science upgrade button
+        if (DOM.upgradeScienceButton) {
+             DOM.upgradeScienceButton.addEventListener('click', upgradeScienceAction);
+        } else {
+             console.warn("[WARN] main.js: Science Upgrade button not found during listener setup.");
+        }
+
+
         if (DOM.restartButton) DOM.restartButton.addEventListener('click', initializeGame);
         console.log("[DEBUG] main.js: Event listeners attached.");
 
