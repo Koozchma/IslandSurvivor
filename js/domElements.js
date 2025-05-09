@@ -36,6 +36,16 @@ export const shelterMaintenanceDisplay = document.getElementById('shelterMainten
 export const shelterUpgradeCostDisplay = document.getElementById('shelterUpgradeCostDisplay');
 export const upgradeShelterButton = document.getElementById('upgradeShelterButton');
 
+// New Science Section DOM Elements
+export const scienceSectionContainer = document.getElementById('scienceSection'); // Container for the new section
+export const sciencePointsDisplay = document.getElementById('sciencePointsDisplay');
+export const scienceLevelDisplay = document.getElementById('scienceLevelDisplay');
+export const scienceProductionDisplay = document.getElementById('scienceProductionDisplay');
+export const scienceMaintenanceDisplay = document.getElementById('scienceMaintenanceDisplay');
+export const scienceUpgradeCostDisplay = document.getElementById('scienceUpgradeCostDisplay');
+export const upgradeScienceButton = document.getElementById('upgradeScienceButton');
+
+
 export const gameOverScreen = document.getElementById('gameOverScreen');
 export const gameOverTitle = document.getElementById('gameOverTitle');
 export const gameOverMessage = document.getElementById('gameOverMessage');
